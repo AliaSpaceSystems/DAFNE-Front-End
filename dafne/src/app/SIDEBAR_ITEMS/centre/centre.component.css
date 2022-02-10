@@ -13,9 +13,17 @@
     color: var(--main-text-color);
     display: inline-block;
 }
+input {
+    /* background-color: var(--modal-bg-color); */
+    background-color: transparent;
+    border-width: 0;
+    color: var(--main-text-color);
+    width: 225px;
+}
 
 /* Window */
 #centre-name-container {
+/* #choose_centre-input-group { */
     background-color: var(--windows-bg-color);
     border-radius: 5px;
     margin-left: auto;
@@ -25,7 +33,30 @@
     -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
     box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
 }
-#centre-name {
+/* #centre-name { */
+#choose_centre-input-group, input {
+    text-align: center;
+}
+
+#choose_centre-input-group i {
+    background-color: transparent;
+    position: absolute;
+    font-size: 1.5rem;
+    right: 0;
+    cursor: pointer !important;
+}
+/* Dropdown menus */
+.dropdown-menu{
+    background-color: var(--title-bg-color);
+    opacity: 90%;
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
+    -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
+    justify-items: center;
+}
+.dropdown-item{
+    font-size: 1.3rem;
+    color: var(--brighter-text-color);
     text-align: center;
 }
 

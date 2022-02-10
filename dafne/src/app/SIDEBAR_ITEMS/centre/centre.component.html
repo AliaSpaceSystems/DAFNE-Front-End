@@ -1,7 +1,18 @@
 <div class="row">
     <i id="centre-icon" class="fa fa-home" aria-hidden="true"></i>
     <div id="centre-title">Centre</div>
+    <div *ngIf="localCentre.name == currentCentre.name" class="is-local ml-auto" style="color: #ffffff;">(local)</div>
+    <div *ngIf="localCentre.name != currentCentre.name" class="is-local ml-auto" style="color: #ffffff;">(remote)</div>
 </div>
 <div id="centre-name-container">
-    <div *ngIf="localCentre.name" id="centre-name" [ngStyle]="{'color': localCentre.color}">{{localCentre.name}}</div>
+    <!-- <div *ngIf="localCentre.name" id="centre-name" [ngStyle]="{'color': localCentre.color}">{{localCentre.name}}</div> -->
+    <div class="input-group" id="choose_centre-input-group"> 
+        <input type="text" id="choose_centre" [ngStyle]="{'color': currentCentre.color}" [value]="currentCentre.name" onkeydown="return false">
+        <i id="choose_centre-dropdown" class="fas fa-angle-down" data-bs-toggle="dropdown"></i>
+        <ul class="dropdown-menu" aria-labelledby="choose_centre-dropdown">
+            <li *ngFor="let centre of centreList; let k = index">
+                <a class="dropdown-item" (click)="setCentreVisibility(k)" [ngStyle]="{'color': centre.color}">{{centre.name}} <span *ngIf="localCentre.name == centre.name" style="color: #ffffff">(local)</span></a>
+            </li>
+        </ul> 
+    </div>
 </div>
