@@ -8,6 +8,7 @@ import { AuthGuard } from './util/auth.guard';
 import { EditCentresComponent } from './edit-centres/edit-centres.component';
 import { EditServicesComponent } from './edit-services/edit-services.component';
 import { EditSyncComponent } from './edit-sync/edit-sync.component';
+import { EditEvictionsComponent } from './edit-evictions/edit-evictions.component';
 
 const routes: Routes = [
   // Main routes
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'edit-centres', component: EditCentresComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
   { path: 'edit-services', component: EditServicesComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
   { path: 'edit-synchronizers', component: EditSyncComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
+  { path: 'edit-evictions', component: EditEvictionsComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
   //{ path: 'network-component/:mapType', outlet: 'centralBodyRouter', component: NetworkViewComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always'},
   { path: '', redirectTo: 'gui', pathMatch: 'full'},
   { path: '**', redirectTo: 'gui'}

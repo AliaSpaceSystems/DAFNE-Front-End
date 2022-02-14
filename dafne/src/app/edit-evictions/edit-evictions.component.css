@@ -1,24 +1,30 @@
-/* Centres Page */
+/* evictions Page */
 .central-div {
     padding-top: 1rem;
 }
 .main-view-content {
     width: calc(100%);
 }
-.edit-centres-page-title {
+#local-advise {
+    text-align: center;
+    line-height: 20rem;
+    color: yellow;
+    font-size: 1.2rem;
+}
+.edit-eviction-page-title {
     background-color: var(--title-bg-color);
     color: var(--main-text-color);
     align-items: center;
     padding-left: 0.5rem;
 }
-.edit-centres-page-content {
+.edit-eviction-page-content {
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
     border-width: 1px;
     padding: 1rem;
     overflow-y: auto;
 }
-.add-centre-button {
+.add-eviction-button {
     width: 10rem;
     height: 2.4rem;
     border-radius: 1.2rem;
@@ -45,7 +51,7 @@
     font-size: 2rem;
 }
 table {
-    width: 100%;
+    width: 100%;   
 }
 th {
     background-color: var(--table-header-bg-color);
@@ -62,18 +68,6 @@ table, th, td {
 input, i {
     cursor: pointer !important;
 }
-.cell-color {
-    position: relative;
-}
-#color-rect {
-    width: 1rem;
-    height: 1rem;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -0.5rem;
-    margin-left: -0.5rem;
-}
 
 .action {
     padding: 0 0.75rem;
@@ -83,10 +77,11 @@ input, i {
     opacity: 75%;
 }
 
-/* Centre Modals */
+/* Modals */
 .modal-content {
     background-color: var(--title-bg-color);
     color: var(--main-text-color);
+    /* width: 800px; */
 }
 .modal-header {
     border-bottom: 1px solid var(--table-border-color);
@@ -98,40 +93,25 @@ input, i {
     background-color: var(--modal-bg-color);
     border-color: var(--title-bg-color);
     color: var(--main-text-color);
+    width: 225px;
+}
+.modal-content i {
+    background-color: var(--title-bg-color);
+    position: absolute;
+    font-size: 2.4rem;
+    right: 0;
 }
 .modal-content label {
     margin-bottom: 0;
 }
-.form-control.valid {
-    border-color: green;
+small {
+    position: absolute;
 }
-
-.form-control.invalid {
-    border-color: red;
-}
-
-.form-control + small {
-    color: red;
-    opacity: 0;
-    height: 0;
-    transition: opacity .4s ease-out;
-}
-
-.form-control.invalid + small {
-    opacity: 1;
-    height: auto;
-    margin-bottom: 20px;
-    transition: opacity .4s ease-out;
-}
-#add-color-picker {
-    -webkit-box-shadow:inset 0px 0px 0px 1px #000;
-    -moz-box-shadow:inset 0px 0px 0px 1px #000;
-    box-shadow:inset 0px 0px 0px 1px #000;
-}
-#add_local {
+#add_is_soft_eviction, #add_is_active {
     appearance: none;
+    width: 2rem;
 }
-#add_local:checked:after {
+#add_is_soft_eviction:checked:after, #add_is_active:checked:after {
 	content: '\2714';
 	color: var(--checked-color);
     font-size: 2rem;
@@ -145,23 +125,32 @@ input, i {
     align-items: flex-end;
 }
 
-/* Hide arrows in lat-lon inputs */
-/* Chrome, Safari, Edge, Opera */
-#addCentreForm input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-/* Firefox */
-#addCentreForm input[type=number] {
-  -moz-appearance: textfield;
+.form-control.valid {
+    border-color: green;
 }
 
-
-
-
-::ng-deep .color-picker .button-area {
-    margin-top: -20px;
+.form-control.invalid {
+    border-color: red;
+    margin-bottom: 50px;
 }
+
+.form-control + small {
+    color: red;
+    opacity: 0;
+    height: 0;
+    transition: opacity .4s ease-out;
+}
+
+.form-control.invalid + small {
+    opacity: 1;
+    height: auto;
+    margin-top: -40px;
+    transition: opacity .4s ease-out;
+}
+
+/* #add_id, #edit_id, #edit_service_url_backend{
+    color: #505053;
+} */
 
 /* Delete Modal */
 .fa-exclamation-triangle {
@@ -169,14 +158,31 @@ input, i {
     color: tomato;
 }
 
+/* Dropdown menus */
+.dropdown-menu{
+    background-color: var(--title-bg-color);
+    opacity: 90%;
+    
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
+    -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.5);
+    justify-items: center;
+}
+.dropdown-item{
+    font-size: 1.3rem;
+    color: var(--brighter-text-color);
+    text-align: center;
+}
+
+
 /* Responsiveness */
 @media screen and (max-width: 767px) {
-    .edit-centres-page-title {
+    .edit-eviction-page-title {
         height: 1.5rem;
         line-height: 1.5rem;
         font-size: 1.0rem;
     }
-    .edit-centres-page-content {
+    .edit-eviction-page-content {
         height: calc(100vh - 7.5rem);
     }
     .footer {
@@ -185,12 +191,12 @@ input, i {
     }
 }
 @media screen and (min-width: 768px) {
-    .edit-centres-page-title {
+    .edit-eviction-page-title {
         height: 2rem;
         line-height: 2rem;
         font-size: 1.5rem;
     }
-    .edit-centres-page-content {
+    .edit-eviction-page-content {
         height: calc(100vh - 9rem);
     }
     .footer {

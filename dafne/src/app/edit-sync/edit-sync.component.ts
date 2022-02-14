@@ -62,7 +62,7 @@ export class EditSyncComponent implements OnInit, OnDestroy {
   public serviceUrlBackendList = []; //: Array<string>;
   public collectionsList = [[]];
   public syncBackendLength: number;
-  public syncBackendLengthArray = [] //: Array<number>;
+  public syncBackendLengthArray = []; //: Array<number>;
   public tempServiceUrlBackendNumber: number;
 
   public localCentre = {

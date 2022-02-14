@@ -1,0 +1,158 @@
+<div class="central-div row">
+    <div class="main-view-content ml-auto" id="main-view-content">
+        <div class="edit-eviction-page-title">Edit Evictions</div>
+        <div class="edit-eviction-page-content">
+            <div class="title-row row">
+                <p class="table-title"><span *ngIf="localCentre.name">{{localCentre.name}}:</span> Evictions List</p>
+                <button *ngIf="this.authenticationService.currentUser.isAdmin && isLocalConfigured" class="add-eviction-button btn btn-primary ml-auto" (click)="addNewEviction()">Add Eviction<i class="plus-icon fas fa-plus"></i></button>
+            </div>
+            <table id="edit-eviction-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Maximum Evicted Products</th>
+                    <th>Keep Period</th>
+                    <th>Keep Period Unit</th>
+                    <th>Filter</th>
+                    <th>Order By</th>
+                    <th>Status</th>
+                    <th>Target Collection</th>
+                    <th>Soft Eviction</th>
+                    <th>Schedule</th>
+                    <th>Active</th>
+                    <th *ngIf="this.authenticationService.currentUser.isAdmin" id="actions-header">Actions</th>
+                </tr>
+                <!-- <tbody *ngFor="let arr of syncBackendLengthArray; let i = index"> -->
+                    <tr *ngFor="let eviction of evictionList">
+                        <td class="cell-name">{{eviction.name}}</td>
+                        <td class="cell-maxEvictedProducts">{{eviction.maxEvictedProducts}}</td>
+                        <td class="cell-keepPeriod">{{eviction.keepPeriod}}</td>
+                        <td class="cell-keepPeriodUnit">{{eviction.keepPeriodUnit}}</td>
+                        <td class="cell-filter">{{eviction.filter}}</td>
+                        <td class="cell-orderBy">{{eviction.orderBy}}</td>
+                        <td class="cell-status">{{eviction.status}}</td>
+                        <td class="cell-targetCollection">{{eviction.targetCollection}}</td>
+                        <td class="cell-isSoftEviction">{{eviction.isSoftEviction}}</td>
+                        <td class="cell-schedule">{{eviction.schedule}}</td>
+                        <td class="cell-isActive">{{eviction.isActive}}</td>
+                        <td *ngIf="this.authenticationService.currentUser.isAdmin" class="cell-actions" id="actions-cell">
+                            <i class="fas fa-play action" style="color: rgb(0, 255, 0)"></i>
+                            <i class="fas fa-stop action" style="color: rgb(255, 0, 0)" ></i>
+                            <i class="fas fa-pen action" style="color: orange" ></i>
+                            <i class="fas fa-trash action" style="color: red" ></i>
+                        </td>
+                    </tr>
+                <!-- </tbody> -->
+            </table>
+            <div *ngIf="isLocalConfigured == false" id="local-advise">Please configure a Local Centre</div>
+        </div>
+    </div>
+</div>
+<app-footer class="footer row"></app-footer>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addEvictionModal" tabindex="-1" aria-labelledby="addEvictionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ADD EVICTION</h5>
+            </div>
+            <div class="modal-body">
+                <form id="addEvictionForm">
+                    <div class="input-group mb-1">
+                        <div class="mb-1">
+                            <label for="add_id" class="form-label">Id</label>
+                            <input type="text" class="form-control" id="add_id" [value]="currentEviction.id" onkeydown="return false" disabled>
+                        </div>
+                        <div class="mb-1 ml-auto">
+                            <label for="add_name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="add_name" [value]="currentEviction.name">
+                            <small id="nameHelp" class="form-text">Length: 1 - 60 characters</small>
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="mb-1">
+                            <label for="add_filter" class="form-label">Filter</label>
+                            <input type="text" class="form-control" id="add_filter" [value]="currentEviction.filter">
+                            <small id="filterHelp" class="form-text">Filter characters</small>
+                        </div>
+                        <div class="mb-1 ml-auto">
+                            <label for="add_max_evicted_products" class="form-label">Max Evicted Products</label>
+                            <input type="text" class="form-control" id="add_max_evicted_products" [value]="currentEviction.maxEvictedProducts">
+                            <small id="maxEvictedProductsHelp" class="form-text">Number</small>
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="mb-1">
+                            <label for="add_keep_period" class="form-label">Keep Period</label>
+                            <input type="text" class="form-control" id="add_keep_period" [value]="currentEviction.keepPeriod">
+                            <small id="keepPeriodHelp" class="form-text">Number</small>
+                        </div>
+                        <div class="mb-1 ml-auto">
+                            <label for="add_keep_period_unit" class="form-label">Keep Period Unit</label>
+                            <div class="input-group" id="add_keep_period_unit-input-group"> 
+                                <input type="text" class="form-control" id="add_keep_period_unit" [value]="currentEviction.keepPeriodUnit" onkeydown="return false">
+                                <i id="add_keep_period_unit-dropdown" class="fas fa-angle-down" data-bs-toggle="dropdown"></i>
+                                <ul class="dropdown-menu" aria-labelledby="add_keep_period_unit-dropdown">
+                                    <li *ngFor="let unit of unitList; let k = index">
+                                        <a class="dropdown-item" (click)="setKeepPeriodUnit(k)">{{unit}}</a>
+                                    </li>
+                                </ul> 
+                            </div>  
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="mb-1">
+                            <label for="add_order_by" class="form-label">Order By</label>
+                            <input type="text" class="form-control" id="add_order_by" [value]="currentEviction.orderBy">
+                            <small id="orderByHelp" class="form-text">Order by characters</small>
+                        </div>
+                        <div class="mb-1 ml-auto">
+                            <label for="add_schedule" class="form-label">Schedule</label>
+                            <input type="text" class="form-control" id="add_schedule" [value]="currentEviction.schedule">
+                            <small id="scheduleHelp" class="form-text">Schedule characters</small>
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="mb-1">
+                            <label for="add_target_collection" class="form-label">Target Collection</label>
+                            <div class="input-group mb-1">
+                                <input type="text" class="form-control" id="add_target_collection" [value]="currentEviction.targetCollection" onkeydown="return false">
+                                <i id="add_target_collection-dropdown" class="fas fa-angle-down" data-bs-toggle="dropdown"></i>
+                                    <ul class="dropdown-menu" aria-labelledby="target_collection-dropdown">
+                                        <li *ngFor="let collection of collectionsList[tempServiceUrlBackendNumber]; let k = index">
+                                            <a class="dropdown-item" (click)="setTargetCollection(k)">{{collection}}</a>
+                                        </li>
+                                    </ul>
+                            </div>
+                        </div>
+                        <div class="mb-1 mr-0 ml-auto check-div">
+                            <label for="add_is_soft_eviction" class="form-label">Is Soft Eviction</label>
+                            <input type="checkbox" class="form-control" id="add_is_soft_eviction" name="is_soft_eviction-checkbox" [checked]="false">
+                        </div>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="mb-1">
+                            <label for="add_status" class="form-label">Status</label>
+                            <div class="input-group mb-1">
+                                <input type="text" class="form-control" id="add_status" [value]="currentEviction.status" onkeydown="return false">
+                                <i id="add_status-dropdown" class="fas fa-angle-down" data-bs-toggle="dropdown"></i>
+                                <ul class="dropdown-menu" aria-labelledby="status-dropdown">
+                                    <li><a class="dropdown-item" (click)="setStatus('stopped')">stopped</a></li>
+                                    <li><a class="dropdown-item" (click)="setStatus('started')">started</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mb-1 mr-0 ml-auto check-div">
+                            <label for="add_is_active" class="form-label">Is Active</label>
+                            <input type="checkbox" class="form-control" id="add_is_active" name="is_active-checkbox" [checked]="false">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button type="button" class="btn btn-secondary ml-auto m-3" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                        <button type="submit" class="btn btn-primary m-3" (click)="onAddSubmit()" data-bs-dismiss="modal">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
