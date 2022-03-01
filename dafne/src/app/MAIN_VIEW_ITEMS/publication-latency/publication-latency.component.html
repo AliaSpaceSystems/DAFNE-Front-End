@@ -1,0 +1,54 @@
+<div id="chart-title">Publication Latency</div>
+<div id="main-column-container">
+    <!-- Filter header -->
+    <div id="filters-form-container">
+        <form id="filters-form">
+            <div id="filters-form-row">
+                <div class="date-picker">
+                    <label class="form-label">Start Date:</label>
+                    <dp-date-picker class="" theme="dp-material" id="filter-start-date" name="filter-start-date"
+                        [(ngModel)]="startDate" (ngModelChange)="onStartDateChanged($event)" [config]="startDatePickerConfig" placeholder="YYYY-MM-DD">
+                    </dp-date-picker>
+                </div>
+                <div class="date-picker">
+                    <label class="form-label">Stop Date:</label>
+                    <dp-date-picker class="" theme="dp-material" id="filter-stop-date" name="filter-stop-date"
+                        [(ngModel)]="stopDate" (ngModelChange)="onStopDateChanged($event)" [config]="stopDatePickerConfig" placeholder="YYYY-MM-DD">
+                    </dp-date-picker>
+                </div>
+                <button type="submit" class="btn btn-primary col-1" id="filter-submit-button" (click)="onFilterSubmit()">Filter</button>
+            </div>
+        </form>
+    </div>
+    <div id="main-row-container">
+        <!-- Charts -->
+        <div id="p5PublicationLatencyCanvas-column-div">
+            <div id="p5PublicationLatencyCanvas"></div>
+            <i class="fa fa-grip-lines" id="table-toggle-button" aria-hidden="false" (click)="toggleTable()"></i>
+        </div>
+        <!-- Selectors -->
+        <section id="selectors-container">
+            <h2>CHART</h2>
+            <button (click)="chartChangeTo('Bar Chart')">Bar Chart</button>
+            <button (click)="chartChangeTo('Line Chart')">Line Chart</button>
+        </section>
+    </div>
+</div>
+
+<!-- Data Table -->
+<div class="data-table-container" id="data-table-container">
+    <div id="export-div">
+        <label for="export-button">Click to export data in csv format</label>
+        <button id="export-button" (click)="saveAsCSV()">Export</button>
+    </div>
+    <div id="table-div">
+        <table id="data-table">
+            <thead>
+                <th style="color: white">Centre</th>
+                <th *ngFor="let latency of publicationLatencyList">{{latency.date.slice(0,4)}}&#10;{{latency.date.slice(5)}}</th>
+            </thead>
+            <td style="color: var(--main-text-color)">Dhus_1</td>
+            <td style="color: var(--main-text-color)" *ngFor="let latency of publicationLatencyList">{{latency.latency}}</td>
+        </table>
+    </div>
+</div>
