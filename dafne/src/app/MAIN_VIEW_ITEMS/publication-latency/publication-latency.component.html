@@ -21,6 +21,8 @@
         </form>
     </div>
     <div id="main-row-container">
+        <!-- Fake Date Title -->
+        <h5 id="fake-day-title">2022-01-27 Latency</h5>
         <!-- Charts -->
         <div id="p5PublicationLatencyCanvas-column-div">
             <div id="p5PublicationLatencyCanvas"></div>
@@ -44,11 +46,12 @@
     <div id="table-div">
         <table id="data-table">
             <thead>
-                <th style="color: white">Centre</th>
-                <th *ngFor="let latency of publicationLatencyList">{{latency.date.slice(0,4)}}&#10;{{latency.date.slice(5)}}</th>
+                <th style="color: white">Dhus_1</th>
+                <!-- <th *ngFor="let latency of publicationLatencyList">{{latency.date.slice(0,4)}}&#10;{{latency.date.slice(5)}}</th> -->
+                <th *ngFor="let latency of publicationDayLatencyList">{{latency.time}}h</th>
             </thead>
-            <td style="color: var(--main-text-color)">Dhus_1</td>
-            <td style="color: var(--main-text-color)" *ngFor="let latency of publicationLatencyList">{{latency.latency}}</td>
+            <td style="color: var(--main-text-color)">2022-01-27 Latency</td>
+            <td style="color: var(--main-text-color)" *ngFor="let latency of publicationDayLatencyList">{{latency.latency}}</td>
         </table>
     </div>
 </div>

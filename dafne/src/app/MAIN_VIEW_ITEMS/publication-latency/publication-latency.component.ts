@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { AlertComponent } from '../../alert/alert.component';
 import { IDatePickerConfig } from 'ng2-date-picker';
-import { Latency } from '../../models/latency';
+import { Latency, DayLatency } from '../../models/latency';
 import * as p5 from 'p5';
 
 @Component({
@@ -15,6 +15,7 @@ export class PublicationLatencyComponent implements OnInit {
 
   public tempDaysNumber: number = 0;
   public daysNumber: number = 30; /// THIS VALUE HAS TO BE TAKEN FROM A GET!!!!!!!!!!!
+  public hoursNumber: number = 24; // EVALUATE HOW TO HANDLE DIFFERENT NUMBER OF READINGS PER DAY.
   public millisPerDay = 86400000;
   public maxDays = 29;
   public millisPerMaxPeriod = this.millisPerDay * this.maxDays;
@@ -86,12 +87,45 @@ export class PublicationLatencyComponent implements OnInit {
       {date: "2022-02-17", latency: 0},
       {date: "2022-02-18", latency: 0}
     ]
-  };    //// 
+  };
+
+  public fakePublicationDayLatencyJson = {
+    centreId: 0,
+    date: "2022-01-27",
+    values: [
+      {time: "00", latency: 20},
+      {time: "01", latency: 0},
+      {time: "02", latency: 65},
+      {time: "03", latency: 74},
+      {time: "04", latency: 98},
+      {time: "05", latency: 90},
+      {time: "06", latency: 98},
+      {time: "07", latency: 100},
+      {time: "08", latency: 85},
+      {time: "09", latency: 180},
+      {time: "10", latency: 77},
+      {time: "11", latency: 0},
+      {time: "12", latency: 97},
+      {time: "13", latency: 122},
+      {time: "14", latency: 0},
+      {time: "15", latency: 0},
+      {time: "16", latency: 158},
+      {time: "17", latency: 57},
+      {time: "18", latency: 20},
+      {time: "19", latency: 97},
+      {time: "20", latency: 74},
+      {time: "21", latency: 40},
+      {time: "22", latency: 68},
+      {time: "23", latency: 12}
+    ]
+  };
 
   public publicationLatencyList: Array<Latency> = this.fakePublicationLatencyJson.values;
+  public publicationDayLatencyList: Array<DayLatency> = this.fakePublicationDayLatencyJson.values;
   //public publicationLatencyList: Array<Latency> = Array.apply(null, Array(30)).map(function () {});
   //public publicationLatencyList: Array<Latency>  = Array.apply(null, Array(30)).map(function () {});
   public dayOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  public mouseIsOnList: Array<boolean> = Array.apply(false, Array(30)).map(function () {});
 
 
   constructor(
@@ -167,6 +201,7 @@ export class PublicationLatencyComponent implements OnInit {
 
     /* CHECK!!!!  ---->  Fill the Array on filter submit */
     this.publicationLatencyList = this.fakePublicationLatencyJson.values;
+    this.publicationDayLatencyList = this.fakePublicationDayLatencyJson.values;
     this.p5Chart.windowResized();
   }
 
@@ -230,7 +265,7 @@ export class PublicationLatencyComponent implements OnInit {
 
     this.p5Chart = new p5(p => {
       let blankXDim = 140;
-      let blankYDim = 140;
+      let blankYDim = 160;
       let xCenter = canvasWidth / 2;
       let yCenter = canvasHeight / 2;
       let pieExtDiameter = (canvasWidth > canvasHeight) ? canvasHeight - blankYDim : canvasWidth - blankXDim;
@@ -261,6 +296,7 @@ export class PublicationLatencyComponent implements OnInit {
 
       let expNum = 1.056975;
       let publicationLatencyListScaled: Array<number> = [];
+      let publicationDayLatencyListScaled: Array<number> = [];
 
       p.setup = () => {
         canvasSpace = p.createCanvas(canvasWidth, canvasHeight).parent('p5PublicationLatencyCanvas');
@@ -270,6 +306,7 @@ export class PublicationLatencyComponent implements OnInit {
         p.textFont('NotesESA-Reg');
         canvasSpace.mouseWheel(e => wheelZoom(e));
         canvasSpace.doubleClicked(resetZoom);
+        //canvasSpace.mouseClicked(e => toggleDayView(e));
       };
 
       p.draw = () => {
@@ -280,11 +317,16 @@ export class PublicationLatencyComponent implements OnInit {
         for (var i = 0; i < this.daysNumber; i++) {
           publicationLatencyListScaled[i] = expNum ** this.publicationLatencyList[i].latency;
         }
+        for (var i = 0; i < this.hoursNumber; i++) {
+          publicationDayLatencyListScaled[i] = expNum ** this.publicationDayLatencyList[i].latency;
+        }
 
+        this.mouseIsOnList = Array.apply(false, Array(30)).map(function () {}); // Change total days number.
         if (this.chartType == this.selectorText[0]) {
-          p.fillBarChart();
+          //p.fillBarChart();
+          p.fillDayBarChart();
         } else if (this.chartType == this.selectorText[1]) {
-          p.fillLineChart();
+          p.fillDayLineChart();
         }
 
         if (p.mouseIsPressed) {
@@ -295,6 +337,15 @@ export class PublicationLatencyComponent implements OnInit {
         if (this.doResetZoom) {
           this.doResetZoom = false;
           resetZoom();
+        }
+      }
+
+      p.mouseClicked = () => {
+        console.log("Mouse clicked.");
+        for (var i = 0; i < this.daysNumber; i++) {
+          if (this.mouseIsOnList[i] == true) {
+            console.log("Day Clicked: " + i);            
+          }
         }
       }
 
@@ -334,6 +385,7 @@ export class PublicationLatencyComponent implements OnInit {
       };
 
       p.fillBarChart = () => {
+        maxValue = 592;
         for (var i = 0; i < this.daysNumber; i++) {
           let sectionXCenter = xCenter - chartXDim2 + chartXDim / (2 * this.daysNumber) + i * chartXDim / this.daysNumber;
           let sectionXFilledDim = (chartXDim / this.daysNumber) / sectionScaleSingle;
@@ -356,9 +408,10 @@ export class PublicationLatencyComponent implements OnInit {
           if (sinOfAngleTemp < 0.001) {
             sinOfAngleTemp = 0.001;
           }
-          let sinOfAngle = sinOfAngleTemp * (p.textWidth(tempText) / 2);
+          let sinOfAngle = sinOfAngleTemp * (p.textWidth(tempText));
+          let sinOfAngle2 = sinOfAngleTemp * (p.textWidth(tempText) / 2);
           p.push();
-          p.translate(sectionXCenter, yCenter + chartYDim2 + sinOfAngle + dateFontSize);
+          p.translate(sectionXCenter, yCenter + chartYDim2 + sinOfAngle2 + dateFontSize);
           if (angle > p.PI / 2) angle = p.PI / 2;
           if (angle < 0) angle = 0;
           p.rotate(-angle);
@@ -374,6 +427,13 @@ export class PublicationLatencyComponent implements OnInit {
           p.fill(publicationLatencyListScaled[i], 255 - publicationLatencyListScaled[i], 0);
           p.noStroke();
           p.rect(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2, sectionXFilledDim, -((this.publicationLatencyList[i].latency < 0 ? 0 : this.publicationLatencyList[i].latency) * chartYDim / maxValue));
+          if (p.mouseX > sectionXCenter - sectionXFilledDim2 && p.mouseX < sectionXCenter - sectionXFilledDim2 + sectionXFilledDim && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2 + sinOfAngle + 2*dateFontSize) {
+            p.stroke(230);
+            p.fill(255, 30);
+            p.rect(sectionXCenter - sectionXFilledDim2, yCenter - chartYDim2, sectionXFilledDim, chartYDim + sinOfAngle + 2*dateFontSize);
+            this.mouseIsOnList = Array.apply(false, Array(30)).map(function () {}); // Change total days number.
+            this.mouseIsOnList[i] = true;
+          }
         } 
         /* Scheme */
         p.rectMode(p.CENTER);
@@ -400,6 +460,7 @@ export class PublicationLatencyComponent implements OnInit {
       }
 
       p.fillLineChart = () => {
+        maxValue = 592;
         let xpoint: Array<number> = [];
         let ypoint: Array<number> = [];
         
@@ -411,6 +472,15 @@ export class PublicationLatencyComponent implements OnInit {
           let sectionXFilledDim2 = sectionXFilledDim / 2;
           xpoint[i] = sectionXCenter - sectionXFilledDim2;
           ypoint[i] = yCenter + chartYDim2 -((this.publicationLatencyList[i].latency < 0 ? 0 : this.publicationLatencyList[i].latency) * chartYDim / maxValue);
+          
+          if (p.mouseX > sectionXCenter - sectionXFilledDim2 && p.mouseX < sectionXCenter - sectionXFilledDim2 + sectionXFilledDim && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2) {
+            p.stroke(lineColor);
+            p.fill(255, 100);
+            p.rect(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2, sectionXFilledDim, -chartYDim);
+            this.mouseIsOnList = Array.apply(false, Array(30)).map(function () {}); // Change total days number.
+            this.mouseIsOnList[i] = true;
+          }
+          
           /* Draw Curve */
           p.stroke(255,255,0);
           p.fill(255, 255, 255, 20);
@@ -446,6 +516,157 @@ export class PublicationLatencyComponent implements OnInit {
         }
         p.endShape();
 
+        /* Scheme */
+        p.rectMode(p.CENTER);
+        p.textAlign(p.RIGHT, p.CENTER);
+        p.noFill();
+        p.stroke(lineColor);
+        p.line(xCenter - chartXDim2, yCenter + chartYDim2, xCenter - chartXDim2, yCenter - chartYDim2);
+        p.line(xCenter - chartXDim2, yCenter + chartYDim2, xCenter + chartXDim2, yCenter + chartYDim2);
+        /* Zero text */
+        p.fill(lineColor);
+        p.noStroke();
+        p.text("0s", xCenter - chartXDim2 - 10, yCenter + chartYDim2);
+        p.stroke(lineColor);
+        p.line(xCenter - chartXDim2 - 5, yCenter + chartYDim2, xCenter - chartXDim2, yCenter + chartYDim2);
+        p.line(xCenter - chartXDim2, yCenter + chartYDim2 + 5, xCenter - chartXDim2, yCenter + chartYDim2);
+        /* yAxis text */
+        for (var i = 0; i < nLines; i++) {
+          p.fill(lineColor);
+          p.noStroke();
+          p.text(p.int(maxValue / (nLines / (i + 1))) + "s", xCenter - chartXDim2 - 15, yCenter + chartYDim2 - (i + 1) * chartYDim / nLines + 1);
+          p.stroke((i+1) * (255 / nLines), 255 - (i+1) * (255 / nLines), 0);
+          p.line(xCenter - chartXDim2 - 5, yCenter + chartYDim2 - (i + 1) * chartYDim / nLines, xCenter + chartXDim2, yCenter + chartYDim2 - (i + 1) * chartYDim / nLines)
+        }
+      }
+
+
+      p.fillDayBarChart = () => {
+        maxValue = 180;
+        for (var i = 0; i < this.hoursNumber; i++) {
+          let sectionXCenter = xCenter - chartXDim2 + chartXDim / (2 * this.hoursNumber) + i * chartXDim / this.hoursNumber;
+          let sectionXFilledDim = (chartXDim / this.hoursNumber) / sectionScaleSingle;
+          let sectionXFilledDim2 = sectionXFilledDim / 2;
+          let barGap = sectionXFilledDim / barGapScale;
+
+          /* xAxis Text */
+          p.textAlign(p.CENTER, p.CENTER);
+          p.fill(lineColor);
+          p.noStroke();
+          p.textSize(dateFontSize);
+          /* Rotate Dates */
+          let tempText = this.publicationDayLatencyList[i].time;
+          let tempRadium = (sectionXFilledDim - (2 * barGap) - dateFontSize);
+          let angle = 0;
+          if (tempRadium > p.textWidth(tempText)) tempRadium = p.textWidth(tempText);
+          if (tempRadium > 0) angle = p.acos(tempRadium / p.textWidth(tempText));
+          else angle = p.PI/2;
+          let sinOfAngleTemp = p.sin(angle);
+          if (sinOfAngleTemp < 0.001) {
+            sinOfAngleTemp = 0.001;
+          }
+          let sinOfAngle = sinOfAngleTemp * (p.textWidth(tempText));
+          let sinOfAngle2 = sinOfAngleTemp * (p.textWidth(tempText) / 2);
+          p.push();
+          p.translate(sectionXCenter, yCenter + chartYDim2 + sinOfAngle2 + dateFontSize);
+          if (angle > p.PI / 2) angle = p.PI / 2;
+          if (angle < 0) angle = 0;
+          p.rotate(-angle);
+          p.text(tempText, 0, 0);
+          p.pop();
+
+          p.noFill();
+          p.stroke(lineColor);
+          p.line(xCenter - chartXDim2 + (i + 1) * chartXDim / this.hoursNumber, yCenter + chartYDim2 + 5, xCenter - chartXDim2 + (i + 1) * chartXDim / this.hoursNumber, yCenter + chartYDim2);
+          /* Bars */
+          p.rectMode(p.CORNER);
+          p.fill(publicationDayLatencyListScaled[i], 255 - publicationDayLatencyListScaled[i], 0);
+          p.noStroke();
+          p.rect(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2, sectionXFilledDim, -((this.publicationDayLatencyList[i].latency < 0 ? 0 : this.publicationDayLatencyList[i].latency) * chartYDim / maxValue));
+        } 
+        /* Scheme */
+        p.rectMode(p.CENTER);
+        p.textAlign(p.RIGHT, p.CENTER);
+        p.noFill();
+        p.stroke(lineColor);
+        p.line(xCenter - chartXDim2, yCenter + chartYDim2, xCenter - chartXDim2, yCenter - chartYDim2);
+        p.line(xCenter - chartXDim2, yCenter + chartYDim2, xCenter + chartXDim2, yCenter + chartYDim2);
+        /* Zero text */
+        p.fill(lineColor);
+        p.noStroke();
+        p.text("0s", xCenter - chartXDim2 - 10, yCenter + chartYDim2);
+        p.stroke(lineColor);
+        p.line(xCenter - chartXDim2 - 5, yCenter + chartYDim2, xCenter - chartXDim2, yCenter + chartYDim2);
+        p.line(xCenter - chartXDim2, yCenter + chartYDim2 + 5, xCenter - chartXDim2, yCenter + chartYDim2);
+        /* yAxis text */
+        for (var i = 0; i < nLines; i++) {
+          p.fill(lineColor);
+          p.noStroke();
+          p.text(p.int(maxValue / (nLines / (i + 1))) + "s", xCenter - chartXDim2 - 15, yCenter + chartYDim2 - (i + 1) * chartYDim / nLines + 1);
+          p.stroke(lineColor);
+          p.line(xCenter - chartXDim2 - 5, yCenter + chartYDim2 - (i + 1) * chartYDim / nLines, xCenter - chartXDim2, yCenter + chartYDim2 - (i + 1) * chartYDim / nLines)
+        }
+      }
+
+      p.fillDayLineChart = () => {
+        maxValue = 180;
+        let xpoint: Array<number> = [];
+        let ypoint: Array<number> = [];
+        
+        p.curveTightness(1.0);
+        p.beginShape();
+        p.stroke(255,255,0);
+        p.fill(255, 255, 255, 20);
+/*         let sectionXCenter = xCenter - chartXDim2 + chartXDim / (2 * this.hoursNumber);
+        let sectionXFilledDim = chartXDim / this.hoursNumber;
+        let sectionXFilledDim2 = sectionXFilledDim / 2;
+        xpoint[0] = sectionXCenter - sectionXFilledDim2;
+        ypoint[0] = yCenter + chartYDim2 -((this.publicationDayLatencyList[0].latency < 0 ? 0 : this.publicationDayLatencyList[0].latency) * chartYDim / maxValue); */
+        p.curveVertex(xCenter - chartXDim2, yCenter + chartYDim2);
+        p.curveVertex(xCenter - chartXDim2, yCenter + chartYDim2);  
+        for (var i = 0; i < this.hoursNumber; i++) {
+          let sectionXCenter = xCenter - chartXDim2 + chartXDim / (2 * this.hoursNumber) + i * chartXDim / this.hoursNumber;
+          let sectionXFilledDim = chartXDim / this.hoursNumber;
+          let sectionXFilledDim2 = sectionXFilledDim / 2;
+          xpoint[i] = sectionXCenter - sectionXFilledDim2;
+          ypoint[i] = yCenter + chartYDim2 -((this.publicationDayLatencyList[i].latency < 0 ? 0 : this.publicationDayLatencyList[i].latency) * chartYDim / maxValue);
+          
+          /* Draw Curve */
+          p.stroke(255,255,0);
+          p.fill(255, 255, 255, 20);
+          p.curveVertex(xpoint[i], ypoint[i]);          
+
+          /* Rotate Dates */
+          let tempText = this.publicationDayLatencyList[i].time;
+          let tempRadium = (sectionXFilledDim - dateFontSize);
+          let angle = 0;
+          if (tempRadium > p.textWidth(tempText)) tempRadium = p.textWidth(tempText);
+          if (tempRadium > 0) angle = p.acos(tempRadium / p.textWidth(tempText));
+          else angle = p.PI/2;
+          let sinOfAngleTemp = p.sin(angle);
+          if (sinOfAngleTemp < 0.001) {
+            sinOfAngleTemp = 0.001;
+          }
+          let sinOfAngle = sinOfAngleTemp * (p.textWidth(tempText) / 2);
+          p.push();
+          p.translate(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2 + sinOfAngle + dateFontSize*2);
+          if (angle > p.PI / 2) angle = p.PI / 2;
+          if (angle < 0) angle = 0;
+          p.rotate(-angle);
+          p.textAlign(p.CENTER, p.CENTER);
+          p.fill(lineColor);
+          p.textSize(dateFontSize);
+          p.stroke(lineColor);
+          p.text(tempText, 0, 0);
+          p.pop();
+
+          /* xAxis Lines */
+          p.stroke(lineColor);
+          p.line(xCenter - chartXDim2 + (i + 1) * chartXDim / this.hoursNumber, yCenter + chartYDim2 + 5, xCenter - chartXDim2 + (i + 1) * chartXDim / this.hoursNumber, yCenter + chartYDim2);
+        }
+        p.curveVertex(xCenter + chartXDim2 - chartXDim / this.hoursNumber, yCenter + chartYDim2);
+        p.curveVertex(xCenter + chartXDim2 - chartXDim / this.hoursNumber, yCenter + chartYDim2); 
+        p.endShape();
 
         /* Scheme */
         p.rectMode(p.CENTER);
