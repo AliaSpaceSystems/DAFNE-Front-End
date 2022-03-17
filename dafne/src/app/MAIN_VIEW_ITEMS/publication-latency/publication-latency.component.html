@@ -22,7 +22,7 @@
     </div>
     <div id="main-row-container">
         <!-- Fake Date Title -->
-        <h5 id="fake-day-title">2022-01-27 Latency</h5>
+        <h5 *ngIf="showDayLatency == true" id="fake-day-title">{{showDayDate}} Latency</h5>
         <!-- Charts -->
         <div id="p5PublicationLatencyCanvas-column-div">
             <div id="p5PublicationLatencyCanvas"></div>
@@ -45,13 +45,24 @@
     </div>
     <div id="table-div">
         <table id="data-table">
-            <thead>
+            <!-- Period Latency -->
+            <thead *ngIf="showDayLatency == false">
                 <th style="color: white">Dhus_1</th>
-                <!-- <th *ngFor="let latency of publicationLatencyList">{{latency.date.slice(0,4)}}&#10;{{latency.date.slice(5)}}</th> -->
-                <th *ngFor="let latency of publicationDayLatencyList">{{latency.time}}h</th>
+                <th *ngFor="let latency of publicationLatencyList">{{latency.date.slice(0,4)}}&#10;{{latency.date.slice(5)}}</th>
             </thead>
-            <td style="color: var(--main-text-color)">2022-01-27 Latency</td>
-            <td style="color: var(--main-text-color)" *ngFor="let latency of publicationDayLatencyList">{{latency.latency}}</td>
+            <tr *ngIf="showDayLatency == false">
+                <td style="color: var(--main-text-color)">Latency</td>
+                <td style="color: var(--main-text-color)" *ngFor="let latency of publicationLatencyList">{{latency.latency}}</td>
+            </tr>
+            <!-- Daily Latency -->
+            <thead *ngIf="showDayLatency == true">
+                <th style="color: white">Dhus_1</th>
+                <th *ngFor="let latency of publicationDayLatencyList">{{latency.time}}:00</th>
+            </thead>
+            <tr *ngIf="showDayLatency == true">
+                <td style="color: var(--main-text-color)">{{showDayDate}} Latency</td>
+                <td style="color: var(--main-text-color)" *ngFor="let latency of publicationDayLatencyList">{{latency.latency}}</td>
+            </tr>
         </table>
     </div>
 </div>

@@ -237,6 +237,9 @@ table {
     /* table-layout: fixed ; */
     width: 100%;
 }
+table tr td:first-child, th:first-child{
+    padding: 0 0.5rem;
+}
 caption, th, td {
     text-align: center;
 }

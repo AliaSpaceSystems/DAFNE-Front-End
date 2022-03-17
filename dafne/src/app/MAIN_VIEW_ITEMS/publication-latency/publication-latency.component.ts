@@ -56,7 +56,7 @@ export class PublicationLatencyComponent implements OnInit {
   public fakePublicationLatencyJson = {
     centreId: 0,
     values: [
-      {date: "2022-01-20", latency: 0},
+      {date: "2022-01-20", latency: 20},
       {date: "2022-01-21", latency: 0},
       {date: "2022-01-22", latency: 65},
       {date: "2022-01-23", latency: 74},
@@ -85,7 +85,7 @@ export class PublicationLatencyComponent implements OnInit {
       {date: "2022-02-15", latency: 99},
       {date: "2022-02-16", latency: 94},
       {date: "2022-02-17", latency: 0},
-      {date: "2022-02-18", latency: 0}
+      {date: "2022-02-18", latency: 20}
     ]
   };
 
@@ -126,7 +126,8 @@ export class PublicationLatencyComponent implements OnInit {
   //public publicationLatencyList: Array<Latency>  = Array.apply(null, Array(30)).map(function () {});
   public dayOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   public mouseIsOnList: Array<boolean> = Array.apply(false, Array(30)).map(function () {});
-
+  public showDayLatency: boolean = false;
+  public showDayDate: string = "";
 
   constructor(
     private el: ElementRef,
@@ -323,10 +324,17 @@ export class PublicationLatencyComponent implements OnInit {
 
         this.mouseIsOnList = Array.apply(false, Array(30)).map(function () {}); // Change total days number.
         if (this.chartType == this.selectorText[0]) {
-          //p.fillBarChart();
-          p.fillDayBarChart();
+          if (this.showDayLatency) {
+            p.fillDayBarChart();
+          } else {
+            p.fillBarChart();
+          }
         } else if (this.chartType == this.selectorText[1]) {
-          p.fillDayLineChart();
+          if (this.showDayLatency) {
+            p.fillDayLineChart();
+          } else {
+            p.fillLineChart();
+          }
         }
 
         if (p.mouseIsPressed) {
@@ -341,10 +349,19 @@ export class PublicationLatencyComponent implements OnInit {
       }
 
       p.mouseClicked = () => {
-        console.log("Mouse clicked.");
-        for (var i = 0; i < this.daysNumber; i++) {
-          if (this.mouseIsOnList[i] == true) {
-            console.log("Day Clicked: " + i);            
+        if (p.mouseX > xCenter - chartXDim2 && p.mouseX < xCenter + chartXDim2
+          && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2) {
+          console.log("Mouse clicked.");
+          if (this.showDayLatency) {
+            this.showDayLatency = false;
+          } else {
+            for (var i = 0; i < this.daysNumber; i++) {
+              if (this.mouseIsOnList[i] == true) {
+                console.log("Day Clicked: " + i);
+                this.showDayDate = this.publicationLatencyList[i].date;
+                this.showDayLatency = true;
+              }
+            }
           }
         }
       }
@@ -386,11 +403,12 @@ export class PublicationLatencyComponent implements OnInit {
 
       p.fillBarChart = () => {
         maxValue = 592;
+        let sectionXFilledDim = (chartXDim / this.daysNumber) / sectionScaleSingle;
+        let sectionXFilledDim2 = sectionXFilledDim / 2;
+        let barGap = sectionXFilledDim / barGapScale;
+
         for (var i = 0; i < this.daysNumber; i++) {
           let sectionXCenter = xCenter - chartXDim2 + chartXDim / (2 * this.daysNumber) + i * chartXDim / this.daysNumber;
-          let sectionXFilledDim = (chartXDim / this.daysNumber) / sectionScaleSingle;
-          let sectionXFilledDim2 = sectionXFilledDim / 2;
-          let barGap = sectionXFilledDim / barGapScale;
 
           /* xAxis Text */
           p.textAlign(p.CENTER, p.CENTER);
@@ -427,7 +445,7 @@ export class PublicationLatencyComponent implements OnInit {
           p.fill(publicationLatencyListScaled[i], 255 - publicationLatencyListScaled[i], 0);
           p.noStroke();
           p.rect(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2, sectionXFilledDim, -((this.publicationLatencyList[i].latency < 0 ? 0 : this.publicationLatencyList[i].latency) * chartYDim / maxValue));
-          if (p.mouseX > sectionXCenter - sectionXFilledDim2 && p.mouseX < sectionXCenter - sectionXFilledDim2 + sectionXFilledDim && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2 + sinOfAngle + 2*dateFontSize) {
+          if (p.mouseX > sectionXCenter - (chartXDim / this.daysNumber)/2 && p.mouseX < sectionXCenter + (chartXDim / this.daysNumber)/2 && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2 + sinOfAngle + 2*dateFontSize) {
             p.stroke(230);
             p.fill(255, 30);
             p.rect(sectionXCenter - sectionXFilledDim2, yCenter - chartYDim2, sectionXFilledDim, chartYDim + sinOfAngle + 2*dateFontSize);
@@ -464,22 +482,19 @@ export class PublicationLatencyComponent implements OnInit {
         let xpoint: Array<number> = [];
         let ypoint: Array<number> = [];
         
+        let sectionXFilledDim = chartXDim / this.daysNumber;
+        let sectionXFilledDim2 = sectionXFilledDim / 2;
+        let barGap = sectionXFilledDim / barGapScale;
+
         p.curveTightness(1.0);
         p.beginShape();
+        p.curveVertex(xCenter - chartXDim2 + sectionXFilledDim2, yCenter + chartYDim2);
+        p.curveVertex(xCenter - chartXDim2 + sectionXFilledDim2, yCenter + chartYDim2);
+        p.rectMode(p.CORNER);
         for (var i = 0; i < this.daysNumber; i++) {
           let sectionXCenter = xCenter - chartXDim2 + chartXDim / (2 * this.daysNumber) + i * chartXDim / this.daysNumber;
-          let sectionXFilledDim = chartXDim / this.daysNumber;
-          let sectionXFilledDim2 = sectionXFilledDim / 2;
-          xpoint[i] = sectionXCenter - sectionXFilledDim2;
+          xpoint[i] = sectionXCenter; // - sectionXFilledDim2;
           ypoint[i] = yCenter + chartYDim2 -((this.publicationLatencyList[i].latency < 0 ? 0 : this.publicationLatencyList[i].latency) * chartYDim / maxValue);
-          
-          if (p.mouseX > sectionXCenter - sectionXFilledDim2 && p.mouseX < sectionXCenter - sectionXFilledDim2 + sectionXFilledDim && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2) {
-            p.stroke(lineColor);
-            p.fill(255, 100);
-            p.rect(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2, sectionXFilledDim, -chartYDim);
-            this.mouseIsOnList = Array.apply(false, Array(30)).map(function () {}); // Change total days number.
-            this.mouseIsOnList[i] = true;
-          }
           
           /* Draw Curve */
           p.stroke(255,255,0);
@@ -488,7 +503,7 @@ export class PublicationLatencyComponent implements OnInit {
 
           /* Rotate Dates */
           let tempText = this.publicationLatencyList[i].date;
-          let tempRadium = (sectionXFilledDim - dateFontSize);
+          let tempRadium = (sectionXFilledDim - (2 * barGap) - dateFontSize);
           let angle = 0;
           if (tempRadium > p.textWidth(tempText)) tempRadium = p.textWidth(tempText);
           if (tempRadium > 0) angle = p.acos(tempRadium / p.textWidth(tempText));
@@ -497,27 +512,40 @@ export class PublicationLatencyComponent implements OnInit {
           if (sinOfAngleTemp < 0.001) {
             sinOfAngleTemp = 0.001;
           }
-          let sinOfAngle = sinOfAngleTemp * (p.textWidth(tempText) / 2);
+          let sinOfAngle = sinOfAngleTemp * (p.textWidth(tempText));
+          let sinOfAngle2 = sinOfAngleTemp * (p.textWidth(tempText) / 2);
           p.push();
-          p.translate(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2 + sinOfAngle + dateFontSize*2);
+          p.translate(sectionXCenter, yCenter + chartYDim2 + sinOfAngle2 + dateFontSize);
           if (angle > p.PI / 2) angle = p.PI / 2;
           if (angle < 0) angle = 0;
           p.rotate(-angle);
           p.textAlign(p.CENTER, p.CENTER);
           p.fill(lineColor);
+          p.noStroke();
           p.textSize(dateFontSize);
-          p.stroke(lineColor);
           p.text(tempText, 0, 0);
           p.pop();
 
+          if (p.mouseX > sectionXCenter - (chartXDim / this.daysNumber)/2 && p.mouseX < sectionXCenter + (chartXDim / this.daysNumber)/2 && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2 + sinOfAngle + 2*dateFontSize) {
+          //if (p.mouseX > sectionXCenter - sectionXFilledDim2 && p.mouseX < sectionXCenter - sectionXFilledDim2 + sectionXFilledDim && p.mouseY > yCenter - chartYDim2 && p.mouseY < yCenter + chartYDim2) {
+            p.stroke(lineColor);
+            p.fill(255, 100);
+            p.rect(sectionXCenter - sectionXFilledDim2, yCenter - chartYDim2, sectionXFilledDim, chartYDim + sinOfAngle + 2*dateFontSize);
+            this.mouseIsOnList = Array.apply(false, Array(30)).map(function () {}); // Change total days number.
+            this.mouseIsOnList[i] = true;
+          }
+          
           /* xAxis Lines */
+          p.fill(255, 255, 255, 20);
           p.stroke(lineColor);
           p.line(xCenter - chartXDim2 + (i + 1) * chartXDim / this.daysNumber, yCenter + chartYDim2 + 5, xCenter - chartXDim2 + (i + 1) * chartXDim / this.daysNumber, yCenter + chartYDim2);
         }
+        p.curveVertex(xCenter + chartXDim2 - sectionXFilledDim2, yCenter + chartYDim2);
+        p.curveVertex(xCenter + chartXDim2 - sectionXFilledDim2, yCenter + chartYDim2); 
         p.endShape();
 
         /* Scheme */
-        p.rectMode(p.CENTER);
+        //p.rectMode(p.CENTER);
         p.textAlign(p.RIGHT, p.CENTER);
         p.noFill();
         p.stroke(lineColor);
@@ -617,11 +645,6 @@ export class PublicationLatencyComponent implements OnInit {
         p.beginShape();
         p.stroke(255,255,0);
         p.fill(255, 255, 255, 20);
-/*         let sectionXCenter = xCenter - chartXDim2 + chartXDim / (2 * this.hoursNumber);
-        let sectionXFilledDim = chartXDim / this.hoursNumber;
-        let sectionXFilledDim2 = sectionXFilledDim / 2;
-        xpoint[0] = sectionXCenter - sectionXFilledDim2;
-        ypoint[0] = yCenter + chartYDim2 -((this.publicationDayLatencyList[0].latency < 0 ? 0 : this.publicationDayLatencyList[0].latency) * chartYDim / maxValue); */
         p.curveVertex(xCenter - chartXDim2, yCenter + chartYDim2);
         p.curveVertex(xCenter - chartXDim2, yCenter + chartYDim2);  
         for (var i = 0; i < this.hoursNumber; i++) {
