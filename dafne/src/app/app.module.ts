@@ -30,6 +30,8 @@ import { EditServicesComponent } from './edit-services/edit-services.component';
 import { EditSyncComponent } from './edit-sync/edit-sync.component';
 import { DpDatePickerModule } from 'ng2-date-picker';
 import { AppConfig } from './services/app.config';
+import { PublicationLatencyComponent } from './MAIN_VIEW_ITEMS/publication-latency/publication-latency.component';
+import { PubLatencyComponent } from './SIDEBAR_ITEMS/pub-latency/pub-latency.component';
 import { ServiceAvailabilityComponent } from './MAIN_VIEW_ITEMS/service-availability/service-availability.component';
 import { ServAvailabilityComponent } from './SIDEBAR_ITEMS/serv-availability/serv-availability.component';
 
@@ -63,6 +65,8 @@ export function initializeApp(appConfig: AppConfig,
     EditCentresComponent,
     EditServicesComponent,
     EditSyncComponent,
+    PublicationLatencyComponent,
+    PubLatencyComponent,
     ServiceAvailabilityComponent,
     ServAvailabilityComponent
   ],
