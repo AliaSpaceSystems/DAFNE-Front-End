@@ -104,6 +104,17 @@
     background-color: black !important;
 }
 
+/* Legend */
+.color-threshold {
+    text-align: center;
+    font-size: 12px;
+    color: white;
+}
+
+#back-to-period-button {
+    background-color: dodgerblue !important;
+}
+
 /* Main Row Container */
 #main-row-container {
     flex-grow: 1;
@@ -246,6 +257,7 @@ caption, th, td {
 table, th, td {
     border: 1px solid var(--table-border-color);
     /* border-collapse: collapse; */
+    padding: 0 0.5rem;
 }
 th {
     background-color: var(--table-header-bg-color);
