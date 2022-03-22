@@ -1,19 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
+import { interval, Subscription } from 'rxjs';
+import { AppConfig } from '../../services/app.config';
 
 @Component({
   selector: 'app-dhs-connected',
   templateUrl: './dhs-connected.component.html',
   styleUrls: ['./dhs-connected.component.css']
 })
-export class DhsConnectedComponent implements OnInit {
-  
+export class DhsConnectedComponent implements OnInit, OnDestroy {
+  public dataRefreshTime = AppConfig.settings.dataRefreshTime;
+  subscription: Subscription;
+
   public numOfDhsConnected;
   private localId: number;  
   constructor(private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
+    if (this.subscription != undefined) {
+      this.subscription.unsubscribe();
+    }
+    const dataRefresh = interval(this.dataRefreshTime);
+
     this.getDHSConnected();
+    this.subscription = dataRefresh.subscribe(n => {
+      // get data after Init every x milliseconds:
+      this.getDHSConnected();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription != undefined) {
+      this.subscription.unsubscribe();
+    }
   }
 
   getDHSConnected():any {

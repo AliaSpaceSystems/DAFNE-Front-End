@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
+import { interval, Subscription } from 'rxjs';
+import { AppConfig } from '../../services/app.config';
 
 declare var $: any;
 
@@ -8,14 +10,32 @@ declare var $: any;
   templateUrl: './data-source-info.component.html',
   styleUrls: ['./data-source-info.component.css']
 })
-export class DataSourceInfoComponent implements OnInit {
+export class DataSourceInfoComponent implements OnInit, OnDestroy {
+  public dataRefreshTime = AppConfig.settings.dataRefreshTime;
+  subscription: Subscription;
+
   public dataSourcesList;
   private localId: number = -1;
 
   constructor(private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
+    if (this.subscription != undefined) {
+      this.subscription.unsubscribe();
+    }
+    const dataRefresh = interval(this.dataRefreshTime);
+
     this.getDataSourcesInfo();
+    this.subscription = dataRefresh.subscribe(n => {
+      // get data after Init every x milliseconds:
+      this.getDataSourcesInfo();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription != undefined) {
+      this.subscription.unsubscribe();
+    }
   }
 
   getDataSourcesInfo() {
