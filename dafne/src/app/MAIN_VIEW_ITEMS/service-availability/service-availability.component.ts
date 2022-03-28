@@ -55,6 +55,41 @@ export class ServiceAvailabilityComponent implements OnInit {
   public chartType: string = this.selectorText[0];
   public doResetZoom: boolean = false;
 
+  /* FAKE AVAILABILITY */
+  public fakeServiceAvailabilityJson = {
+    values: [
+    { date: "2022-02-24", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-02-25", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-02-26", successResponses: 134, totalRequests: 144, percentage: 93.05, average: 95.29 },
+    { date: "2022-02-27", successResponses: 120, totalRequests: 144, percentage: 83.33, average: 95.29 },
+    { date: "2022-02-28", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-01", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-02", successResponses: 141, totalRequests: 144, percentage: 97.91, average: 95.29 },
+    { date: "2022-03-03", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-04", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-05", successResponses: 115, totalRequests: 144, percentage: 79.86, average: 95.29 },
+    { date: "2022-03-06", successResponses: 138, totalRequests: 144, percentage: 95.83, average: 95.29 },
+    { date: "2022-03-07", successResponses: 142, totalRequests: 144, percentage: 98.61, average: 95.29 },
+    { date: "2022-03-08", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-09", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-10", successResponses: 143, totalRequests: 144, percentage: 99.30, average: 95.29 },
+    { date: "2022-03-11", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-12", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-13", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-14", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-15", successResponses: 140, totalRequests: 144, percentage: 97.22, average: 95.29 },
+    { date: "2022-03-16", successResponses: 136, totalRequests: 144, percentage: 94.44, average: 95.29 },
+    { date: "2022-03-17", successResponses: 130, totalRequests: 144, percentage: 90.27, average: 95.29 },
+    { date: "2022-03-18", successResponses: 97, totalRequests: 144, percentage: 67.36, average: 95.29 },
+    { date: "2022-03-19", successResponses: 106, totalRequests: 144, percentage: 73.61, average: 95.29 },
+    { date: "2022-03-20", successResponses: 127, totalRequests: 144, percentage: 88.19, average: 95.29 },
+    { date: "2022-03-21", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-22", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-23", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-24", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 },
+    { date: "2022-03-25", successResponses: 144, totalRequests: 144, percentage: 100.00, average: 95.29 }
+  ]}
+
   public serviceAvailabilityList: Array<Availability> = [];
   public requestedServiceAvailabilityList: Array<Availability> = [];
   public averageServiceAvailability: number = -1;
@@ -134,11 +169,13 @@ export class ServiceAvailabilityComponent implements OnInit {
     this.authenticationService.getServiceAvailability(this.localCentre.id, body).subscribe(
       (res) => {
         if (res.centreId == this.localCentre.id) {
-          this.availabilityDaysNumber = res.values.length;
+          // this.availabilityDaysNumber = res.values.length;
+          this.availabilityDaysNumber = this.fakeServiceAvailabilityJson.values.length;
           this.requestedDaysNumber = tempTimeDifference / (1000 * 3600 * 24) + 1;
           this.requestedServiceAvailabilityList = [];
           if (this.availabilityDaysNumber > 0) {
-            this.averageServiceAvailability = res.values[0].average;
+            //this.averageServiceAvailability = res.values[0].average;
+            this.averageServiceAvailability = this.fakeServiceAvailabilityJson.values[0].average;
           } else {
             this.averageServiceAvailability = -1;
           }
@@ -151,7 +188,8 @@ export class ServiceAvailabilityComponent implements OnInit {
               percentage: -1
             }
           }
-          this.serviceAvailabilityList = res.values;
+          //this.serviceAvailabilityList = res.values;
+          this.serviceAvailabilityList = this.fakeServiceAvailabilityJson.values;
 
           /* Calculate week-day shift */
           this.weekdayShift = (tempStartDate.getDay() == 0 ? 6 : tempStartDate.getDay() - 1);

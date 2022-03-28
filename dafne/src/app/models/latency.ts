@@ -1,10 +1,11 @@
 export class Latency {
     date: string;
     latency: number;
-    source: string
+    source: string;
 }
 
 export class DayLatency {
     time: string;
     latency: number;
+    source: string;
 }

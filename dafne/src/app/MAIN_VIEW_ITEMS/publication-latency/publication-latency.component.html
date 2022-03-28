@@ -48,7 +48,9 @@
             <!-- </ng-template> -->
             
             <hr>
-            <h6 *ngIf="showDayLatency == false" style="text-align: center;">Click on a date to see hourly details</h6>
+            <div class="legend-info">Latencies measured on BACKEND are highlighted in <span style="color: #ffc800;">yellow</span></div>
+            <hr>
+            <h6 *ngIf="showDayLatency == false" class="legend-info">Click on a date to see hourly details</h6>
             <button *ngIf="showDayLatency == true" id="back-to-period-button" (click)="onBackToPeriodClicked()">Back to Period</button>
         </section>
     </div>

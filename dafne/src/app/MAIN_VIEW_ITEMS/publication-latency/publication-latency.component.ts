@@ -16,8 +16,8 @@ export class PublicationLatencyComponent implements OnInit {
   public p5Chart;
 
   public tempDaysNumber: number = 0;
-  public daysNumber: number = 30; /// THIS VALUE HAS TO BE TAKEN FROM A GET!!!!!!!!!!!
-  public hoursNumber: number = 24; // EVALUATE HOW TO HANDLE DIFFERENT NUMBER OF READINGS PER DAY.
+  public daysNumber: number = 0; /// THIS VALUE HAS TO BE TAKEN FROM A GET!!!!!!!!!!!
+  public hoursNumber: number = 0; // EVALUATE HOW TO HANDLE DIFFERENT NUMBER OF READINGS PER DAY.
   public millisPerDay = 86400000;
   public maxDays = 29;
   public millisPerMaxPeriod = this.millisPerDay * this.maxDays;
@@ -58,72 +58,73 @@ export class PublicationLatencyComponent implements OnInit {
   public fakePublicationLatencyJson = {
     centreId: 0,
     values: [
-      {date: "2022-01-20", latency: 2000, source: "FE"},
-      {date: "2022-01-21", latency: 20, source: "FE"},
-      {date: "2022-01-22", latency: 6500, source: "FE"},
-      {date: "2022-01-23", latency: 740, source: "FE"},
-      {date: "2022-01-24", latency: 9800, source: "FE"},
-      {date: "2022-01-25", latency: 9600, source: "BE"},
-      {date: "2022-01-26", latency: 98000, source: "FE"},
-      {date: "2022-01-27", latency: 300000, source: "FE"},
-      {date: "2022-01-28", latency: 298000, source: "FE"},
-      {date: "2022-01-29", latency: 28000, source: "FE"},
-      {date: "2022-01-30", latency: 177000, source: "FE"},
-      {date: "2022-01-31", latency: 0, source: "FE"},
-      {date: "2022-02-01", latency: 97, source: "FE"},
-      {date: "2022-02-02", latency: 122, source: "BE"},
-      {date: "2022-02-03", latency: 0, source: "FE"},
-      {date: "2022-02-04", latency: 0, source: "FE"},
-      {date: "2022-02-05", latency: 15800, source: "FE"},
-      {date: "2022-02-06", latency: 35700, source: "FE"},
-      {date: "2022-02-07", latency: 0, source: "FE"},
-      {date: "2022-02-08", latency: 9700, source: "FE"},
-      {date: "2022-02-09", latency: 4400, source: "FE"},
-      {date: "2022-02-10", latency: 0, source: "FE"},
-      {date: "2022-02-11", latency: 0, source: "FE"},
-      {date: "2022-02-12", latency: 59200, source: "BE"},
-      {date: "2022-02-13", latency: 38800, source: "BE"},
-      {date: "2022-02-14", latency: 240, source: "FE"},
-      {date: "2022-02-15", latency: 990, source: "FE"},
-      {date: "2022-02-16", latency: 940, source: "FE"},
-      {date: "2022-02-17", latency: 0, source: "FE"},
-      {date: "2022-02-18", latency: 20, source: "FE"}
+      {date: "2022-02-24", latency: 2000, source: "FE"},
+      {date: "2022-02-25", latency: 20, source: "FE"},
+      {date: "2022-02-26", latency: 6500, source: "FE"},
+      {date: "2022-02-27", latency: 740, source: "FE"},
+      {date: "2022-02-28", latency: 9800, source: "FE"},
+      {date: "2022-03-01", latency: 9600, source: "BE"},
+      {date: "2022-03-02", latency: 98000, source: "FE"},
+      {date: "2022-03-03", latency: 300000, source: "FE"},
+      {date: "2022-03-04", latency: 298000, source: "FE"},
+      {date: "2022-03-05", latency: 28000, source: "FE"},
+      {date: "2022-03-06", latency: 177000, source: "FE"},
+      {date: "2022-03-07", latency: 0, source: "FE"},
+      {date: "2022-03-08", latency: 97, source: "FE"},
+      {date: "2022-03-09", latency: 122, source: "BE"},
+      {date: "2022-03-10", latency: 0, source: "FE"},
+      {date: "2022-03-11", latency: 0, source: "FE"},
+      {date: "2022-03-12", latency: 15800, source: "FE"},
+      {date: "2022-03-13", latency: 35700, source: "FE"},
+      {date: "2022-03-14", latency: 0, source: "FE"},
+      {date: "2022-03-15", latency: 9700, source: "FE"},
+      {date: "2022-03-16", latency: 4400, source: "FE"},
+      {date: "2022-03-17", latency: 0, source: "FE"},
+      {date: "2022-03-18", latency: 0, source: "FE"},
+      {date: "2022-03-19", latency: 59200, source: "BE"},
+      {date: "2022-03-20", latency: 38800, source: "BE"},
+      {date: "2022-03-21", latency: 240, source: "FE"},
+      {date: "2022-03-22", latency: 990, source: "FE"},
+      {date: "2022-03-23", latency: 940, source: "FE"},
+      {date: "2022-03-24", latency: 0, source: "FE"},
+      {date: "2022-03-25", latency: 20, source: "FE"}
     ]
   };
 
   public fakePublicationDayLatencyJson = {
     centreId: 0,
-    date: "2022-01-27",
+    date: "2022-03-15",
     values: [
-      {time: "00", latency: 2000},
-      {time: "01", latency: 0},
-      {time: "02", latency: 650},
-      {time: "03", latency: 740},
-      {time: "04", latency: 980},
-      {time: "05", latency: 900},
-      {time: "06", latency: 980},
-      {time: "07", latency: 1000},
-      {time: "08", latency: 8500},
-      {time: "09", latency: 18000},
-      {time: "10", latency: 770},
-      {time: "11", latency: 0},
-      {time: "12", latency: 970},
-      {time: "13", latency: 1220},
-      {time: "14", latency: 0},
-      {time: "15", latency: 0},
-      {time: "16", latency: 15800},
-      {time: "17", latency: 5700},
-      {time: "18", latency: 2000},
-      {time: "19", latency: 9700},
-      {time: "20", latency: 7400},
-      {time: "21", latency: 400},
-      {time: "22", latency: 680},
-      {time: "23", latency: 120}
+      {time: "00", latency: 2000, source: "FE"},
+      {time: "01", latency: 0, source: "FE"},
+      {time: "02", latency: 650, source: "FE"},
+      {time: "03", latency: 740, source: "FE"},
+      {time: "04", latency: 980, source: "FE"},
+      {time: "05", latency: 900, source: "FE"},
+      {time: "06", latency: 980, source: "FE"},
+      {time: "07", latency: 1000, source: "FE"},
+      {time: "08", latency: 8500, source: "FE"},
+      {time: "09", latency: 44000, source: "FE"},
+      {time: "10", latency: 770, source: "BE"},
+      {time: "11", latency: 0, source: "FE"},
+      {time: "12", latency: 970, source: "BE"},
+      {time: "13", latency: 1220, source: "BE"},
+      {time: "14", latency: 0, source: "FE"},
+      {time: "15", latency: 0, source: "FE"},
+      {time: "16", latency: 15800, source: "FE"},
+      {time: "17", latency: 5700, source: "FE"},
+      {time: "18", latency: 2000, source: "FE"},
+      {time: "19", latency: 9700, source: "FE"},
+      {time: "20", latency: 7400, source: "FE"},
+      {time: "21", latency: 400, source: "BE"},
+      {time: "22", latency: 680, source: "FE"},
+      {time: "23", latency: 120, source: "FE"}
     ]
   };
 
-  public publicationLatencyList: Array<Latency> = this.fakePublicationLatencyJson.values;
-  public publicationDayLatencyList: Array<DayLatency> = this.fakePublicationDayLatencyJson.values;
+  public publicationLatencyList: Array<Latency> = []; //this.fakePublicationLatencyJson.values;
+  public publicationDayLatencyList: Array<DayLatency> = []; //this.fakePublicationDayLatencyJson.values;
+
   //public publicationLatencyList: Array<Latency> = Array.apply(null, Array(30)).map(function () {});
   //public publicationLatencyList: Array<Latency>  = Array.apply(null, Array(30)).map(function () {});
   public dayOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -207,6 +208,8 @@ export class PublicationLatencyComponent implements OnInit {
       this.getDailyCompleteness(body, i); */
     }
 
+    this.daysNumber = this.tempDaysNumber;
+    this.hoursNumber = 24;
     /* CHECK!!!!  ---->  Fill the Array on filter submit */
     this.publicationLatencyList = this.fakePublicationLatencyJson.values;
     this.publicationDayLatencyList = this.fakePublicationDayLatencyJson.values;
@@ -297,6 +300,7 @@ export class PublicationLatencyComponent implements OnInit {
       let labelBackgroundColor = p.color('#12222fcc')
       let lineColor = p.color('#aaaaaa');
       let valuesColor = p.color(200);
+      let backendColor = p.color(255, 200, 0);
       let dateFontSize = 12;
       let valueFontSize = 10;
 
@@ -353,8 +357,10 @@ export class PublicationLatencyComponent implements OnInit {
         }
 
         if (p.mouseIsPressed) {
-          tx -= p.pmouseX - p.mouseX;
-          ty -= p.pmouseY - p.mouseY;
+          if (p.mouseButton === p.CENTER) {
+            tx -= p.pmouseX - p.mouseX;
+            ty -= p.pmouseY - p.mouseY;
+          }
         }
         
         if (this.doResetZoom) {
@@ -428,7 +434,7 @@ export class PublicationLatencyComponent implements OnInit {
       };
 
       p.fillBarChart = () => {
-        maxValue = 300000;
+        maxValue = 300000; // <---- This should be set at max threshold value when chart is empty!
         let sectionXFilledDim = (chartXDim / this.daysNumber) / sectionScaleSingle;
         let sectionXFilledDim2 = sectionXFilledDim / 2;
         let barGap = sectionXFilledDim / barGapScale;
@@ -468,7 +474,9 @@ export class PublicationLatencyComponent implements OnInit {
           if (angle < 0) angle = 0;
           p.rotate(-angle);
           if (this.publicationLatencyList[i].source == "BE") {
-            tempText = tempText + "\n(BE)";
+            p.fill(backendColor);
+          } else {
+            p.fill(lineColor);
           }
           p.text(tempText, 0, 0);
           p.pop();
@@ -488,8 +496,8 @@ export class PublicationLatencyComponent implements OnInit {
             p.fill(this.rgbConvertToArray(this.latencyColors[2].color));
           } else if (this.publicationLatencyList[i].latency > this.latencyColors[3].threshold && this.publicationLatencyList[i].latency <= this.latencyColors[2].threshold) {
             p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
-          } else if (this.publicationLatencyList[i].latency > this.latencyColors[4].threshold && this.publicationLatencyList[i].latency <= this.latencyColors[3].threshold) {
-            p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
+          } else if (this.publicationLatencyList[i].latency >= this.latencyColors[4].threshold && this.publicationLatencyList[i].latency <= this.latencyColors[3].threshold) {
+            p.fill(this.rgbConvertToArray(this.latencyColors[4].color));
           }
           
           p.noStroke();
@@ -593,7 +601,9 @@ export class PublicationLatencyComponent implements OnInit {
           p.noStroke();
           p.textSize(dateFontSize);
           if (this.publicationLatencyList[i].source == "BE") {
-            tempText = tempText + "\n(BE)";
+            p.fill(backendColor);
+          } else {
+            p.fill(lineColor);
           }
           p.text(tempText, 0, 0);
           p.pop();
@@ -652,7 +662,7 @@ export class PublicationLatencyComponent implements OnInit {
 
 
       p.fillDayBarChart = () => {
-        maxValue = 18000;
+        maxValue = 44000;
 
         let sectionXFilledDim = (chartXDim / this.hoursNumber) / sectionScaleSingle;
         let sectionXFilledDim2 = sectionXFilledDim / 2;
@@ -674,7 +684,7 @@ export class PublicationLatencyComponent implements OnInit {
           p.noStroke();
           p.textSize(dateFontSize);
           /* Rotate Dates */
-          let tempText = this.publicationDayLatencyList[i].time;
+          let tempText = this.publicationDayLatencyList[i].time + "h";
           let tempRadium = (sectionXFilledDim - (2 * barGap) - dateFontSize);
           let angle = 0;
           if (tempRadium > p.textWidth(tempText)) tempRadium = p.textWidth(tempText);
@@ -691,6 +701,11 @@ export class PublicationLatencyComponent implements OnInit {
           if (angle > p.PI / 2) angle = p.PI / 2;
           if (angle < 0) angle = 0;
           p.rotate(-angle);
+          if (this.publicationDayLatencyList[i].source == "BE") {
+            p.fill(backendColor);
+          } else {
+            p.fill(lineColor);
+          }
           p.text(tempText, 0, 0);
           p.pop();
 
@@ -708,8 +723,8 @@ export class PublicationLatencyComponent implements OnInit {
             p.fill(this.rgbConvertToArray(this.latencyColors[2].color));
           } else if (this.publicationDayLatencyList[i].latency > this.latencyColors[3].threshold && this.publicationDayLatencyList[i].latency <= this.latencyColors[2].threshold) {
             p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
-          } else if (this.publicationDayLatencyList[i].latency > this.latencyColors[4].threshold && this.publicationDayLatencyList[i].latency <= this.latencyColors[3].threshold) {
-            p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
+          } else if (this.publicationDayLatencyList[i].latency >= this.latencyColors[4].threshold && this.publicationDayLatencyList[i].latency <= this.latencyColors[3].threshold) {
+            p.fill(this.rgbConvertToArray(this.latencyColors[4].color));
           }
           p.noStroke();
           p.rect(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2, sectionXFilledDim, -((this.publicationDayLatencyList[i].latency < 0 ? 0 : this.publicationDayLatencyList[i].latency) * chartYDim / maxValue));
@@ -740,7 +755,7 @@ export class PublicationLatencyComponent implements OnInit {
       }
 
       p.fillDayLineChart = () => {
-        maxValue = 18000;
+        maxValue = 44000;
         let xpoint: Array<number> = [];
         let ypoint: Array<number> = [];
         
@@ -776,7 +791,7 @@ export class PublicationLatencyComponent implements OnInit {
           p.curveVertex(xpoint[i], ypoint[i]);          
 
           /* Rotate Dates */
-          let tempText = this.publicationDayLatencyList[i].time;
+          let tempText = this.publicationDayLatencyList[i].time + "h";
           let tempRadium = (sectionXFilledDim - (2 * barGap) - dateFontSize);
           let angle = 0;
           if (tempRadium > p.textWidth(tempText)) tempRadium = p.textWidth(tempText);
@@ -797,6 +812,11 @@ export class PublicationLatencyComponent implements OnInit {
           p.fill(lineColor);
           p.noStroke();
           p.textSize(dateFontSize);
+          if (this.publicationDayLatencyList[i].source == "BE") {
+            p.fill(backendColor);
+          } else {
+            p.fill(lineColor);
+          }
           p.text(tempText, 0, 0);
           p.pop();
 

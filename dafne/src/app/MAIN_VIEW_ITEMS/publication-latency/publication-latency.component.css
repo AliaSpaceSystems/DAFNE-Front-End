@@ -111,6 +111,13 @@
     color: white;
 }
 
+.legend-info {
+    text-align: center;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    padding: 0.3rem;
+}
+
 #back-to-period-button {
     background-color: dodgerblue !important;
 }
