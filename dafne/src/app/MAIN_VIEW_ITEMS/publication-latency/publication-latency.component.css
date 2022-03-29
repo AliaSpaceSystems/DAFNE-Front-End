@@ -35,6 +35,10 @@
     flex-wrap: nowrap;
     justify-content: center;
 }
+#filters-form #synchronizer-select {
+    font-size: 0.75rem;
+    height: 2rem;
+}
 #filters-form .date-picker {
     margin-left: 0;
 }
@@ -44,6 +48,12 @@
     text-align: right;
     margin-right: 0.5rem;
     margin-left: 1rem;
+}
+#filters-form select {
+    background-color: var(--modal-bg-color);
+    border-color: var(--title-bg-color);
+    color: var(--main-text-color);
+    font-size: 0.75rem;
 }
 #filter-submit-button {
     font-size: 1.0rem;

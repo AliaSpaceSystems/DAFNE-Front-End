@@ -103,8 +103,8 @@ export class PublicationLatencyComponent implements OnInit {
       {time: "05", latency: 900},
       {time: "06", latency: 980},
       {time: "07", latency: 1000},
-      {time: "08", latency: 8500},
-      {time: "09", latency: 18000},
+      {time: "08", latency: 32000},
+      {time: "09", latency: 54000},
       {time: "10", latency: 770},
       {time: "11", latency: 0},
       {time: "12", latency: 970},
@@ -133,6 +133,11 @@ export class PublicationLatencyComponent implements OnInit {
 
   public latencyColors;
 
+  public syncFakeList = [
+    "Sync_1", "Sync_2", "Sync_3"
+  ];
+  public selectedFilterSync;
+
   constructor(
     private csvService: CsvDataService,
     private el: ElementRef,
@@ -143,6 +148,10 @@ export class PublicationLatencyComponent implements OnInit {
 
   ngOnInit(): void {
     this.init_P5();
+  }
+
+  onFilterSyncChange(sync) {
+    this.selectedFilterSync = sync.target.value;
   }
 
   onStartDateChanged(date) {
@@ -488,8 +497,8 @@ export class PublicationLatencyComponent implements OnInit {
             p.fill(this.rgbConvertToArray(this.latencyColors[2].color));
           } else if (this.publicationLatencyList[i].latency > this.latencyColors[3].threshold && this.publicationLatencyList[i].latency <= this.latencyColors[2].threshold) {
             p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
-          } else if (this.publicationLatencyList[i].latency > this.latencyColors[4].threshold && this.publicationLatencyList[i].latency <= this.latencyColors[3].threshold) {
-            p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
+          } else if (this.publicationLatencyList[i].latency >= this.latencyColors[4].threshold && this.publicationLatencyList[i].latency <= this.latencyColors[3].threshold) {
+            p.fill(this.rgbConvertToArray(this.latencyColors[4].color));
           }
           
           p.noStroke();
@@ -652,7 +661,7 @@ export class PublicationLatencyComponent implements OnInit {
 
 
       p.fillDayBarChart = () => {
-        maxValue = 18000;
+        maxValue = 54000;
 
         let sectionXFilledDim = (chartXDim / this.hoursNumber) / sectionScaleSingle;
         let sectionXFilledDim2 = sectionXFilledDim / 2;
@@ -708,8 +717,8 @@ export class PublicationLatencyComponent implements OnInit {
             p.fill(this.rgbConvertToArray(this.latencyColors[2].color));
           } else if (this.publicationDayLatencyList[i].latency > this.latencyColors[3].threshold && this.publicationDayLatencyList[i].latency <= this.latencyColors[2].threshold) {
             p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
-          } else if (this.publicationDayLatencyList[i].latency > this.latencyColors[4].threshold && this.publicationDayLatencyList[i].latency <= this.latencyColors[3].threshold) {
-            p.fill(this.rgbConvertToArray(this.latencyColors[3].color));
+          } else if (this.publicationDayLatencyList[i].latency >= this.latencyColors[4].threshold && this.publicationDayLatencyList[i].latency <= this.latencyColors[3].threshold) {
+            p.fill(this.rgbConvertToArray(this.latencyColors[4].color));
           }
           p.noStroke();
           p.rect(sectionXCenter - sectionXFilledDim2, yCenter + chartYDim2, sectionXFilledDim, -((this.publicationDayLatencyList[i].latency < 0 ? 0 : this.publicationDayLatencyList[i].latency) * chartYDim / maxValue));
@@ -740,7 +749,7 @@ export class PublicationLatencyComponent implements OnInit {
       }
 
       p.fillDayLineChart = () => {
-        maxValue = 18000;
+        maxValue = 54000;
         let xpoint: Array<number> = [];
         let ypoint: Array<number> = [];
         

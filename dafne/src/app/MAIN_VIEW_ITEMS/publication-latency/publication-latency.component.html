@@ -4,6 +4,12 @@
     <div id="filters-form-container">
         <form id="filters-form">
             <div id="filters-form-row">
+                <div>
+                    <label class="form-label">Synchronizer:</label>
+                    <select id="synchronizer-select" class="form-select" (change)="onFilterSyncChange($event)">
+                        <option [value]="sync" *ngFor="let sync of syncFakeList">{{sync}}</option>
+                    </select>
+                </div>
                 <div class="date-picker">
                     <label class="form-label">Start Date:</label>
                     <dp-date-picker class="" theme="dp-material" id="filter-start-date" name="filter-start-date"
