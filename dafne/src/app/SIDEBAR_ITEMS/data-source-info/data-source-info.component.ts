@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
-import { interval, Subscription } from 'rxjs';
-import { AppConfig } from '../../services/app.config';
+import { MessageService } from '../../services/message.service';
 
 declare var $: any;
 
@@ -11,13 +10,18 @@ declare var $: any;
   styleUrls: ['./data-source-info.component.css']
 })
 export class DataSourceInfoComponent implements OnInit, OnDestroy {
-  public dataRefreshTime = AppConfig.settings.dataRefreshTime;
-  subscription: Subscription;
-
+  private autorefreshSubscription;
   public dataSourcesList;
   private localId: number = -1;
 
-  constructor(private authenticationService: AuthenticationService) { }
+  constructor(
+    private authenticationService: AuthenticationService,
+    private messageService: MessageService
+  ) { 
+    this.autorefreshSubscription = this.messageService.invokeAutoRefresh.subscribe(() => {
+      this.ngOnInit();
+    });
+  }
 
   ngOnInit(): void {
     if (this.subscription != undefined) {
@@ -35,6 +39,12 @@ export class DataSourceInfoComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.subscription != undefined) {
       this.subscription.unsubscribe();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.autorefreshSubscription != undefined) {
+      this.autorefreshSubscription.unsubscribe();
     }
   }
 

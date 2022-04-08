@@ -1,7 +1,7 @@
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
-import { interval, Subscription } from 'rxjs';
-import { AppConfig } from '../../services/app.config';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-dhs-connected',
@@ -9,12 +9,17 @@ import { AppConfig } from '../../services/app.config';
   styleUrls: ['./dhs-connected.component.css']
 })
 export class DhsConnectedComponent implements OnInit, OnDestroy {
-  public dataRefreshTime = AppConfig.settings.dataRefreshTime;
-  subscription: Subscription;
-
+  private autorefreshSubscription;
   public numOfDhsConnected;
   private localId: number;  
-  constructor(private authenticationService: AuthenticationService) { }
+  constructor(
+    private authenticationService: AuthenticationService,
+    private messageService: MessageService
+  ) { 
+    this.autorefreshSubscription = this.messageService.invokeAutoRefresh.subscribe(() => {
+      this.ngOnInit();
+    });
+  }
 
   ngOnInit(): void {
     if (this.subscription != undefined) {
@@ -32,6 +37,12 @@ export class DhsConnectedComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.subscription != undefined) {
       this.subscription.unsubscribe();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.autorefreshSubscription != undefined) {
+      this.autorefreshSubscription.unsubscribe();
     }
   }
 

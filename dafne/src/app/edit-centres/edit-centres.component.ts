@@ -4,8 +4,6 @@ import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { AlertComponent } from '../alert/alert.component';
 import { MessageService } from '../services/message.service';
-import { interval, Subscription } from 'rxjs';
-import { AppConfig } from '../services/app.config';
 
 declare var $: any;
 
@@ -29,7 +27,8 @@ const regexPatterns = {
   styleUrls: ['./edit-centres.component.css']
 })
 export class EditCentresComponent implements OnInit, OnDestroy {
-  navigationSubscription;
+  private autorefreshSubscription;
+  private navigationSubscription;
   private pageRefreshed: boolean = true;
   public centreList:any;
   public editCentreId: number = 0;
@@ -37,9 +36,6 @@ export class EditCentresComponent implements OnInit, OnDestroy {
   public tempCentreIdToDelete = -1;
   public tempCentreNameToDelete = '';
   public tempCentreColorToDelete = '';
-
-  public dataRefreshTime = AppConfig.settings.dataRefreshTime;
-  subscription: Subscription;
 
   constructor(
     public authenticationService: AuthenticationService,
@@ -55,22 +51,16 @@ export class EditCentresComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
 
-  ngOnInit(): void {
-    if (this.subscription != undefined) {
-      this.subscription.unsubscribe();
-    }
-    const dataRefresh = interval(this.dataRefreshTime);
-
-    this.messageService.showSpinner(true);
-    this.getCentresData();
-    
-    this.subscription = dataRefresh.subscribe(n => {
-      // get data after Init every dataRefreshTime milliseconds:
+    this.autorefreshSubscription = this.messageService.invokeAutoRefresh.subscribe(() => {
       this.messageService.showSpinner(false);
       this.getCentresData();
     });
+  }
+
+  ngOnInit(): void {
+    this.messageService.showSpinner(true);
+    this.getCentresData();
 
     let inputs = document.querySelectorAll('input.form-control');
     inputs.forEach((input) => {
@@ -84,8 +74,8 @@ export class EditCentresComponent implements OnInit, OnDestroy {
     if (this.navigationSubscription != undefined) {
       this.navigationSubscription.unsubscribe();
     }
-    if (this.subscription != undefined) {
-      this.subscription.unsubscribe();
+    if (this.autorefreshSubscription != undefined) {
+      this.autorefreshSubscription.unsubscribe();
     }
   }
 
@@ -119,10 +109,19 @@ export class EditCentresComponent implements OnInit, OnDestroy {
 
   public addNewCentre() {
     this.tempCentre.name = '';
-    this.tempCentre.description = '';
     this.tempCentre.latitude = '0.0';
     this.tempCentre.longitude = '0.0';
     this.tempCentre.color = this.getRandomColor();
+    this.tempCentre.local = false;
+    this.tempCentre.description = '';
+    let inputs = document.querySelectorAll('#addCentreForm input.form-control');
+    inputs.forEach((input) => {
+      if ((<HTMLInputElement>input).id == "add_name") (<HTMLInputElement>input).value = this.tempCentre.name;
+      if ((<HTMLInputElement>input).id == "add_latitude") (<HTMLInputElement>input).value = this.tempCentre.latitude;
+      if ((<HTMLInputElement>input).id == "add_longitude") (<HTMLInputElement>input).value = this.tempCentre.longitude;
+      if ((<HTMLInputElement>input).id == "add_local") (<HTMLInputElement>input).checked = this.tempCentre.local;
+      if ((<HTMLInputElement>input).id == "add_description") (<HTMLInputElement>input).value = this.tempCentre.description;
+    });
     $("#addCentreModal").modal('toggle');
   }
 
@@ -133,10 +132,11 @@ export class EditCentresComponent implements OnInit, OnDestroy {
       this.validate(input, regexPatterns[input.id]);
       if (input.className == "form-control invalid") {
         valid = false;
-        this.alert.showErrorAlert("Form value error", "You entered an invalid value into '" + this.findLableForControl(input).innerHTML + "' field.");
+        return;
       }
     });
     if (valid) {
+      $('.modal').modal('hide');
       let body = {
         name: (<HTMLInputElement>document.getElementById("add_name")).value,
         latitude: (<HTMLInputElement>document.getElementById('add_latitude')).value,
@@ -151,7 +151,6 @@ export class EditCentresComponent implements OnInit, OnDestroy {
           this.refreshPage();
         }
       );
-    } else {
     }
   }
 
@@ -195,10 +194,11 @@ export class EditCentresComponent implements OnInit, OnDestroy {
       this.validate(input, regexPatterns[input.id]);
       if (input.className == "form-control invalid") {
         valid = false;
-        this.alert.showErrorAlert("Form value error", "You entered an invalid value into '" + this.findLableForControl(input).innerHTML + "' field.");
+        return;
       }
     });
     if (valid) {
+      $('.modal').modal('hide');
       let body = {
         name: (<HTMLInputElement>document.getElementById("edit_name")).value,
         latitude: (<HTMLInputElement>document.getElementById('edit_latitude')).value,
@@ -213,8 +213,6 @@ export class EditCentresComponent implements OnInit, OnDestroy {
           this.refreshPage();
         }
       )
-    } else {
-
     }
   }
 

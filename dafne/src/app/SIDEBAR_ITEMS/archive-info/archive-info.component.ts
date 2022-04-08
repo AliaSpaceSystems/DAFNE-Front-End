@@ -1,7 +1,7 @@
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { interval, Subscription } from 'rxjs';
-import { AppConfig } from '../../services/app.config';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-archive-info',
@@ -9,14 +9,19 @@ import { AppConfig } from '../../services/app.config';
   styleUrls: ['./archive-info.component.css']
 })
 export class ArchiveInfoComponent implements OnInit, OnDestroy {
-  public dataRefreshTime = AppConfig.settings.dataRefreshTime;
-  subscription: Subscription;
-
+  private autorefreshSubscription;
   public archiveList;
   private localId: number;
   public localName: string = "";
 
-  constructor(private authenticationService: AuthenticationService) { }
+  constructor(
+    private authenticationService: AuthenticationService,
+    private messageService: MessageService
+  ) { 
+    this.autorefreshSubscription = this.messageService.invokeAutoRefresh.subscribe(() => {
+      this.ngOnInit();
+    });
+  }
 
   ngOnInit(): void {
     if (this.subscription != undefined) {
@@ -34,6 +39,12 @@ export class ArchiveInfoComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.subscription != undefined) {
       this.subscription.unsubscribe();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.autorefreshSubscription != undefined) {
+      this.autorefreshSubscription.unsubscribe();
     }
   }
 

@@ -4,8 +4,6 @@ import { AuthenticationService } from '../services/authentication.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { AlertComponent } from '../alert/alert.component';
 import { MessageService } from '../services/message.service';
-import { interval, Subscription } from 'rxjs';
-import { AppConfig } from '../services/app.config';
 
 declare var $: any;
 
@@ -29,7 +27,8 @@ const regexPatterns = {
   styleUrls: ['./edit-services.component.css']
 })
 export class EditServicesComponent implements OnInit, OnDestroy {
-  navigationSubscription;
+  private autorefreshSubscription;
+  private navigationSubscription;
   private pageRefreshed: boolean = true;
   public serviceList: any;
   public centreList: any;
@@ -38,9 +37,6 @@ export class EditServicesComponent implements OnInit, OnDestroy {
   public tempServiceUrlToDelete = '';
   
   public serviceTypesList;
-
-  public dataRefreshTime = AppConfig.settings.dataRefreshTime;
-  subscription: Subscription;
 
   constructor(
     public authenticationService: AuthenticationService,
@@ -56,39 +52,47 @@ export class EditServicesComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
 
-  ngOnInit(): void {
-    if (this.subscription != undefined) {
-      this.subscription.unsubscribe();
-    }
-    const dataRefresh = interval(this.dataRefreshTime);
-
-    this.messageService.showSpinner(true);
-    this.getAllServiceTypes();
-    this.getServices();
-
-    this.subscription = dataRefresh.subscribe(n => {
-      // get data after Init every x milliseconds:
+    this.autorefreshSubscription = this.messageService.invokeAutoRefresh.subscribe(() => {
       this.messageService.showSpinner(false);
       this.getAllServiceTypes();
       this.getServices();
     });
+  }
+
+  ngOnInit(): void {
+    this.messageService.showSpinner(true);
+    this.getAllServiceTypes();
+    this.getServices();
 
     let inputs = document.querySelectorAll('input.form-control');
     inputs.forEach((input) => {
-      input.addEventListener('input', (e:any) => {        
+      input.addEventListener('input', (e:any) => {
         this.validate(e.target, regexPatterns[e.target.attributes.id.value]);
       });
     });
+    var inputAddPassword = document.querySelector('#add_service_password');
+    inputAddPassword.addEventListener('input', (e:any) => {
+      document.getElementById('toggleAddPassword').style.setProperty('display', 'inline');
+    })
+    var inputEditPassword = document.querySelector('#edit_service_password');
+    inputEditPassword.addEventListener('input', (e:any) => {
+      document.getElementById('toggleEditPassword').style.setProperty('display', 'inline');
+    })
+    $('.modal').on('hidden.bs.modal', function () {
+      var passwordAddEl = document.getElementById('add_service_password');
+      passwordAddEl.setAttribute('type', 'password');
+      var passwordEditEl = document.getElementById('edit_service_password');
+      passwordEditEl.setAttribute('type', 'password');
+    })
   }
 
   ngOnDestroy(): void {
     if (this.navigationSubscription != undefined) {
       this.navigationSubscription.unsubscribe();
     }
-    if (this.subscription != undefined) {
-      this.subscription.unsubscribe();
+    if (this.autorefreshSubscription != undefined) {
+      this.autorefreshSubscription.unsubscribe();
     }
   }
   
@@ -156,10 +160,16 @@ export class EditServicesComponent implements OnInit, OnDestroy {
 
   setNewFormServiceType(id: number) {
     this.service.service_type = this.serviceTypesList.filter(a => a.id == id)[0].service_type;
+    let element = document.getElementById('add_service_type');
+    (<HTMLInputElement>element).value = this.service.service_type;
+    element.dispatchEvent(new KeyboardEvent('input', { 'bubbles': true }));
   }
 
   setNewFormCentre(centreId: number) {
     this.service.centre = this.centreList.filter(a => a.id == centreId)[0].name;
+    let element = document.getElementById('add_centre');
+    (<HTMLInputElement>element).value = this.service.centre;
+    element.dispatchEvent(new KeyboardEvent('input', { 'bubbles': true }));
   }
 
   public findLableForControl(el) {
@@ -173,11 +183,22 @@ export class EditServicesComponent implements OnInit, OnDestroy {
   }
 
   public addNewService() {
+    this.service.service_type = '';
     this.service.username = '';
     this.service.password = '';
-    this.service.service_url = '';
-    this.service.service_type = '';
+    this.service.service_url = '';    
     this.service.centre = '';
+    let inputs = document.querySelectorAll('#addServiceForm input.form-control');
+    inputs.forEach((input) => {
+      if ((<HTMLInputElement>input).id == "add_service_type") (<HTMLInputElement>input).value = this.service.service_type;
+      if ((<HTMLInputElement>input).id == "add_service_username") (<HTMLInputElement>input).value = this.service.username;
+      if ((<HTMLInputElement>input).id == "add_service_password") (<HTMLInputElement>input).value = this.service.password;
+      if ((<HTMLInputElement>input).id == "add_service_url") (<HTMLInputElement>input).value = this.service.service_url;
+      if ((<HTMLInputElement>input).id == "add_centre") (<HTMLInputElement>input).value = this.service.centre;
+    });
+    var eyeEl = document.getElementById('toggleAddPassword');
+    eyeEl.setAttribute('class', 'far fa-eye');
+    eyeEl.style.setProperty('display', 'none');
     $("#addServiceModal").modal('toggle');
   }
 
@@ -189,11 +210,12 @@ export class EditServicesComponent implements OnInit, OnDestroy {
       this.validate(input, regexPatterns[input.id]);
       if (input.className == "form-control invalid") {
         valid = false;
-        this.alert.showErrorAlert("Form value error", "You entered an invalid value into '" + this.findLableForControl(input).innerHTML + "' field.");
+        return;
       }
     });
     
     if (valid) {
+      $('.modal').modal('hide');
       let tempCentreId = this.centreList.filter(a => a.name == (<HTMLInputElement>document.getElementById('add_centre')).value)[0].id;
       let tempServiceTypeId = this.serviceTypesList.filter(a => a.service_type == (<HTMLInputElement>document.getElementById('add_service_type')).value)[0].id;
       if (tempServiceTypeId != this.serviceTypesList.filter(a => a.service_type == 'DHuS Back-End')[0].id) {
@@ -221,8 +243,6 @@ export class EditServicesComponent implements OnInit, OnDestroy {
           this.refreshPage();
         }
       );
-    } else {
-
     }
   }
 
@@ -244,7 +264,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
   public deleteServiceCanceled() {
     this.tempServiceIdToDelete = -1;
   }
-
+  
   public editService(id: number) {
     this.service.id = this.serviceList.filter(a => a.id === id)[0].id;
     this.service.username = this.serviceList.filter(a => a.id === id)[0].username;
@@ -252,6 +272,13 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     this.service.service_url = this.serviceList.filter(a => a.id === id)[0].service_url;
     this.service.service_type = this.serviceList.filter(a => a.id === id)[0].service_type;
     this.service.centre = this.serviceList.filter(a => a.id === id)[0].centre;
+
+    var passwordEl = document.getElementById('edit_service_password');
+    (<HTMLInputElement>passwordEl).value = null;
+    var eyeEl = document.getElementById('toggleEditPassword');
+    eyeEl.setAttribute('class', 'far fa-eye');
+    eyeEl.style.setProperty('display', 'none');
+
     $("#editServiceModal").modal('toggle');
   }
 
@@ -262,14 +289,18 @@ export class EditServicesComponent implements OnInit, OnDestroy {
       this.validate(input, regexPatterns[input.id]);
       if (input.className == "form-control invalid") {
         valid = false;
-        this.alert.showErrorAlert("Form value error", "You entered an invalid value into '" + this.findLableForControl(input).innerHTML + "' field.");
+        return;
       }
     });
-    let tempCentreId = this.centreList.filter(a => a.name == (<HTMLInputElement>document.getElementById('edit_centre')).value)[0].id;
+    let tempCentreId = this.centreList.filter(a => a.name == (<HTMLInputElement>document.getElementById('edit_centre')).value)[0].id;    
     let tempServiceTypeId = this.serviceTypesList.filter(a => a.service_type == (<HTMLInputElement>document.getElementById('edit_service_type')).value)[0].id;
+    let tempServiceId = id;
+    
     if (tempServiceTypeId != this.serviceTypesList.filter(a => a.service_type == 'DHuS Back-End')[0].id) {
       for (var i = 0; i < this.serviceList.length; i++) {
-        if (tempCentreId == this.centreList.filter(a => a.name == this.serviceList[i].centre)[0].id) {
+        if (tempCentreId == this.centreList.filter(a => a.name == this.serviceList[i].centre)[0].id 
+          && this.serviceList[i].id != tempServiceId
+        ) {
           if (
             this.serviceTypesList.filter(a => a.service_type == this.serviceList[i].service_type)[0].id == this.serviceTypesList.filter(a => a.service_type == 'DHuS Front-End')[0].id ||
             this.serviceTypesList.filter(a => a.service_type == this.serviceList[i].service_type)[0].id == this.serviceTypesList.filter(a => a.service_type == 'DHuS Single Instance')[0].id
@@ -281,6 +312,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
       }
     }
     if (valid) {
+      $('.modal').modal('hide');
       let body: any;
       if ((<HTMLInputElement>document.getElementById('edit_service_password')).value == '') {
         body = {
@@ -305,8 +337,6 @@ export class EditServicesComponent implements OnInit, OnDestroy {
           this.refreshPage();
         }
       );
-    } else {
-
     }
   }
 
