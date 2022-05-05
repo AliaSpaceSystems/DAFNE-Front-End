@@ -48,16 +48,19 @@
 <!-- Data Table -->
 <div class="data-table-container" id="data-table-container">
     <div id="export-div">
-        <label for="export-button">Click to export data in csv format</label>
-        <button id="export-button" (click)="saveAsCSV()">Export</button>
+        <label for="export-button">Click to export data:</label>
+        <button id="export-button" (click)="saveAsCSV()" style="padding: 0 0.5rem;">Export CSV</button>
+        <button id="export-button" (click)="saveAsPDF()" style="padding: 0 0.5rem;">Export PDF</button>
     </div>
     <div id="table-div">
         <table id="data-table">
             <thead>
-                <th style="color: white">{{localCentre.name}}</th>
-                <ng-template ngFor let-availability [ngForOf]="requestedServiceAvailabilityList" let-i="index">
-                    <th style="padding: 0 0.5rem;">{{availability.date}}</th>
-                </ng-template>
+                <tr>
+                    <th style="color: white">{{localCentre.name}}</th>
+                    <ng-template ngFor let-availability [ngForOf]="requestedServiceAvailabilityList" let-i="index">
+                        <th style="padding: 0 0.5rem;">{{availability.date}}</th>
+                    </ng-template>
+                </tr>
             </thead>
             <tr>
                 <td style="color: var(--main-text-color)">TotalRequests</td>

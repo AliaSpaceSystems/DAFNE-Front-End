@@ -6,6 +6,11 @@ import { Availability } from '../../models/availability';
 import { AppConfig } from '../../services/app.config';
 import { CsvDataService } from '../../services/csv-data.service';
 import * as p5 from 'p5';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import html2canvas from 'html2canvas';
+
+declare var $: any;
 
 @Component({
   selector: 'app-service-availability',
@@ -72,7 +77,7 @@ export class ServiceAvailabilityComponent implements OnInit {
     public authenticationService: AuthenticationService,
     private csvService: CsvDataService,
     private el: ElementRef,
-    private alert: AlertComponent,
+    private alert: AlertComponent
   ) {
     this.availabilityColors = AppConfig.settings.availabilityColors;
   }
@@ -238,6 +243,45 @@ export class ServiceAvailabilityComponent implements OnInit {
         + ').csv', csvContent
       );
     }
+  }
+
+  saveAsPDF() {
+    const chart = document.getElementById("p5ServiceAvailabilityCanvas");
+    const options = {
+      background: 'white',
+      scale: 1.0
+    };
+    html2canvas(chart, options).then(function(canvas) {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "px",
+        format: [1280, 768]
+      });
+      
+      var imgData = canvas.toDataURL('image/png');
+      const imgProps = doc.getImageProperties(imgData);
+      console.log("img W: " + imgProps.width);
+      
+      const pdfWidth = doc.internal.pageSize.getWidth();
+      console.log("pdf W: " + pdfWidth);
+
+      doc.setFontSize(36);
+      doc.text("This is a very nice title", 300, 150);
+      (doc as any).addImage(imgData, 'PNG', 260, 200);
+
+      (doc as any).autoTable({
+        html: '#data-table',
+        theme: 'striped',
+        useCss: false,
+        styles: {
+          cellPadding: 1.0,
+          fontSize: 8,
+          //overflow: 'visible'
+        },
+        startY: 650
+      });
+      doc.output('dataurlnewwindow');
+    });
   }
 
   init_P5() {
