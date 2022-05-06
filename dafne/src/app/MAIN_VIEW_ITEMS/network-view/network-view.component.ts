@@ -335,15 +335,21 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
           this.centrePopup.style.top = (y + headerHeight)+'px';
           this.centrePopup.style.visibility = 'visible';
         }
-      } 
-      /* onHover: ({object, x, y}) => {
+      },
+      onHover: ({object, x, y}) => {
         if (!!object) {
             //console.log("Hovering Centre: " + JSON.stringify(object, null, 2));
-            this.centrePopup.style.visibility = 'visible';
+            //this.map.getCanvas().style.cursor = 'pointer';
         }
-      } */
+      }
     });
-
+    this.map.on('mouseover', 'icon-layer', () => {
+      console.log("Mouseover");
+      
+      //this.map.getCanvas().style.cursor = '';
+      //popup.remove();
+      //this.centrePopup.style.visibility = 'hidden';
+    });
     const textLayer = new MapboxLayer({
       type: TextLayer,
       id: 'text-layer',
