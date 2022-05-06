@@ -34,6 +34,8 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   };
   private localId: number;
 
+  public centrePopup: HTMLElement;
+
   constructor(
     private activatedroute: ActivatedRoute,
     private authenticationService: AuthenticationService,
@@ -108,6 +110,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
         this.getActiveDataSource();
       }
     });
+    this.centrePopup = document.getElementById("centre-hover-div");
   }
 
   ngAfterViewInit(): any {
@@ -284,6 +287,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+
   /* Deck.gl with Mapbox interleaved */
   initDeck() {
     document.getElementById('map-content').innerHTML = "";
@@ -319,7 +323,25 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       }),
       getPosition: d => [d.longitude, d.latitude],
       getSize: AppConfig.settings.mapSettings.iconSize,
-      getColor: d => this.rgbConvertToArray(d.color)
+      getColor: d => this.rgbConvertToArray(d.color),
+      onClick: ({object, x, y}) => {
+        if (!!object) {
+          console.log("Clicked Centre: " + JSON.stringify(object, null, 2));
+          let sidebar = document.querySelector('.sidebar');
+          let sidebarWidth = sidebar.clientWidth;          
+          let header = document.querySelector('.header');
+          let headerHeight = header.clientHeight;
+          this.centrePopup.style.left = (x + sidebarWidth)+'px';
+          this.centrePopup.style.top = (y + headerHeight)+'px';
+          this.centrePopup.style.visibility = 'visible';
+        }
+      } 
+      /* onHover: ({object, x, y}) => {
+        if (!!object) {
+            //console.log("Hovering Centre: " + JSON.stringify(object, null, 2));
+            this.centrePopup.style.visibility = 'visible';
+        }
+      } */
     });
 
     const textLayer = new MapboxLayer({
@@ -369,11 +391,47 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       if (this.sub) {
         this.sub.unsubscribe();
       }
+
+      /* POPUP */
+      /* const popup = new Mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+      }); */
+
+      //data: this.allCentreList,
+      /* this.map.on('mousemove', 'icon-layer', (e) => {
+        console.log("Perdiana!");
+        
+        // Change the cursor style as a UI indicator.
+        this.map.getCanvas().style.cursor = 'pointer';
+        
+        // Copy coordinates array.
+        //const coordinates = e.features[0].geometry.coordinates.slice();
+        const coordinates = e.features[0].properties.getPosition;
+        const description = e.features[0].properties.getText;
+        
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+        
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup.setLngLat(coordinates).setHTML(description).addTo(this.map);
+      }); */
+        
+      /* this.map.on('mouseleave', 'icon-layer', () => {
+        this.map.getCanvas().style.cursor = '';
+        //popup.remove();
+        //this.centrePopup.style.visibility = 'hidden';
+      }); */
+      /* POPUP end */
     });
 
     this.map.on('resize', () => {
-    });
-    
+    });    
   }
 
   /* Function to convert [r, g, b] colors to html string: "#rrggbb" */

@@ -9,6 +9,17 @@
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
 }
+#centre-hover-div {
+    visibility: hidden;
+    position: absolute;
+    background-color: #fff;
+    color: brown;
+    padding: 1rem 1rem;
+    border-radius: 0.5rem;
+    left: -1000px;
+    top: -1000px;
+    z-index: 9999;
+}
 
 /* Centres List */
 #target-id-list-div {
