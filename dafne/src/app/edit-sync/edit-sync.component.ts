@@ -164,9 +164,10 @@ export class EditSyncComponent implements OnInit, OnDestroy {
  
 
   getSynchronizers() {
-    this.authenticationService.getSynchronizers().subscribe(
+    this.authenticationService.getSynchronizersV2().subscribe(
       (res: any) => {
         /* Check and delete objects with empty sync list */
+        console.log("getSynchronizers V2 - res: " + JSON.stringify(res, null, 2));
         for (var i = 0; i < Object.keys(res).length; i++) {
           if (res[i].synchronizers.length == 0) {
             res.splice(i, 1);
@@ -182,6 +183,7 @@ export class EditSyncComponent implements OnInit, OnDestroy {
           for (var k = 0; k < this.syncList[i].length; k++) {
             this.syncList[i][k].ServiceUrlBackend = res[i].serviceUrl;
             this.syncList[i][k].IntelligentSyncSupported = res[i].intelligentSyncSupported;
+            this.intelligentSyncSupported[i] ? (this.syncList[i][k].Schedule = res[i].synchronizers[k].Cron.Schedule) : null;
           }
           this.collectionsList.push([]);
           if ("collections" in res[i]) {
