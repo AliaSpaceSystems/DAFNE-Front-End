@@ -26,6 +26,9 @@ export class ServiceAvailabilityComponent implements OnInit {
   public availabilityWeeksNumber: number = 0;
   public requestedDaysNumber: number = 0;
   public requestedWeeksNumber: number = 0;
+  public requestedMonthNumber: number = 0;
+  public requestedStartMonth: number = 0;
+  public requestedStopMonth: number = 0;
   public millisPerDay: number = 86400000;
   public millisPerWeek:number = this.millisPerDay * 7;
   public maxDays: number = 30;  // set 30 for 31 days of availability.
@@ -66,6 +69,7 @@ export class ServiceAvailabilityComponent implements OnInit {
   public averageServiceAvailability: number = -1;
 
   public dayOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  public monthOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   public weekdayShift: number = 0;
   public weekdayStopShift: number = 0;
   public rowNumber = 5;
@@ -250,7 +254,6 @@ export class ServiceAvailabilityComponent implements OnInit {
     if (weeklyCheckbox.checked == true) {
       /* Weekly */
       this.isWeekly = true;
-      this.chartChangeTo('Bar Chart');
       this.authenticationService.getServiceAvailabilityWeekly(this.localCentre.id, body).subscribe(
         (res) => {
           if (res.centreId == this.localCentre.id) {
@@ -258,6 +261,9 @@ export class ServiceAvailabilityComponent implements OnInit {
             this.weekdayShift = (tempStartDate.getDay() == 0 ? 6 : (tempStartDate.getDay() - 1));
             this.weekdayStopShift = (tempStopDate.getDay() == 0 ? 0 : (7 - tempStopDate.getDay()));
             this.requestedWeeksNumber = Math.ceil((((tempTimeDifference + (this.weekdayShift + this.weekdayStopShift) * this.millisPerDay ) / this.millisPerDay) + 1) / 7);
+            this.requestedStartMonth = tempStartDate.getMonth();
+            this.requestedStopMonth = tempStopDate.getMonth();
+            this.requestedMonthNumber = this.requestedStartMonth > this.requestedStopMonth ? (12 - this.requestedStartMonth + this.requestedStopMonth) + 1 : (this.requestedStopMonth - this.requestedStartMonth) + 1;
             this.requestedServiceAvailabilityList = [];
             if (this.availabilityWeeksNumber > 0) {
               this.averageServiceAvailability = res.values[0].average;
@@ -826,6 +832,28 @@ export class ServiceAvailabilityComponent implements OnInit {
         p.rectMode(p.CENTER);
         p.textAlign(p.CENTER, p.CENTER);
         if (this.isWeekly == true) {
+          for (var i = 0; i < this.requestedMonthNumber; i++) {
+            p.fill(200);
+            p.noStroke();
+            p.textSize(dateFontSize);
+            p.text(this.monthOfYear[this.requestedStartMonth + i], xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim - dayYDim/1.5);
+            for (var k = 0; k < 5; k++) {
+              p.stroke(70);
+              p.fill(20);
+              p.rect(xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim, dayXDim, dayYDim);
+              p.noStroke();
+              p.fill(0,150);
+              p.rect(xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim - dayYDim/4.0, dayXDim / 1.2, dayYDim / 4, 5);
+              p.fill(200);
+              p.noStroke();
+              p.textSize(dateFontSize);
+              let dates: string[] = this.getYearMonthWeekDatesString(this.startDateTemp.getFullYear(), this.requestedStartMonth + i, k);              
+              p.text("week " + (k+1) + "\nfrom: " + dates[0] + "\nto: " + dates[1], xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2 * dayYDim + k * dayYDim + 1 - dayYDim/4.0);
+              p.fill(100);
+              p.textSize(valueFontSize);
+              p.text("NaN", xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2 * dayYDim + k * dayYDim + 1 + dayYDim/5.5);
+            }
+          }
         } else {        
           for (var i = 0; i < 7; i++) {
             p.fill(200);
@@ -885,6 +913,30 @@ export class ServiceAvailabilityComponent implements OnInit {
       }
 
     }, this.el.nativeElement);
+  }
+
+  /* Function to get start/stop dates of a week
+     getYearMonthWeekDatesString(year, monthNumber, weekNumber)
+     getYearMonthWeekDatesString(2022, 7, 0)
+
+     returns string[2]:
+     {"2022-07-01", "2022-07-07"}
+
+  */
+  getYearMonthWeekDatesString(year, month, week) {
+    //console.log("Year: " + year + " - month: " + month + " - week: " + week);    
+    let dates: string[] = [];
+    let tempFirst = new Date(year, month);
+    let tempFirstDayNum = (tempFirst.getDay() == 0 ? 6 : tempFirst.getDay() - 1); 
+    console.log("tempFirst: " + tempFirst + " - tempFirstDayNum: " + tempFirstDayNum);
+    let weekStart = new Date(tempFirst.valueOf() - (this.millisPerDay * tempFirstDayNum));
+    console.log("weekStart: " + weekStart);
+    let weekStop = new Date(weekStart.valueOf() + (this.millisPerDay * 6));
+    console.log("weekStop: " + weekStop);
+    dates.push(weekStart.toISOString().slice(0, 10));
+    dates.push(weekStop.toISOString().slice(0, 10));
+    
+    return dates;
   }
 
   /* Function to convert [r, g, b] colors to html string: "#rrggbb" */
