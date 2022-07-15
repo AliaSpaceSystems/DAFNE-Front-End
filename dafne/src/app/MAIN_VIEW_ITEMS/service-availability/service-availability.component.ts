@@ -298,9 +298,14 @@ export class ServiceAvailabilityComponent implements OnInit {
             for (var i = 0; i < this.requestedMonthNumber; i++) {
               /* Calculate number of weeks per month */
               this.weekPerMonth.push(this.maxWeeksPerMonth);
-              let dates: string[] = this.getYearMonthWeekDatesString(this.startDateTemp.getFullYear(), this.requestedStartMonth + i, 4);
-              if (dates == null) this.weekPerMonth[i] = 4;
-
+              for (var k = 0; k < this.maxWeeksPerMonth; k++) {
+                let lastDates: string[] = this.getYearMonthWeekDatesString(this.startDateTemp.getFullYear(), this.requestedStartMonth + i, k);
+                if (lastDates == null) {
+                  this.weekPerMonth[i] = k;
+                  break;
+                }
+              }
+              console.log("this.weekPerMonth[" + i + "]: " + this.weekPerMonth[i]);
               for (var k = 0; k < this.weekPerMonth[i]; k++) {
                 if (counter >= this.monthWeekShift && counter < this.requestedWeeksNumber + this.monthWeekShift) {
                   this.completeWeeklyCalendarServiceAvailabilityList[counter] = this.requestedServiceAvailabilityList[counter - this.monthWeekShift];             
@@ -314,9 +319,10 @@ export class ServiceAvailabilityComponent implements OnInit {
                 }
                 counter++;
               }
-              console.log("Month: " + i + " - weekPerMonth: " + this.weekPerMonth[i]);
+              //console.log("Month: " + i + " - weekPerMonth: " + this.weekPerMonth[i]);
             }
-            console.log("this.completeWeeklyCalendarServiceAvailabilityList : " + JSON.stringify(this.completeWeeklyCalendarServiceAvailabilityList, null, 2));
+            //console.log("this.completeWeeklyCalendarServiceAvailabilityList : " + JSON.stringify(this.completeWeeklyCalendarServiceAvailabilityList, null, 2));
+            this.rowNumber = 5;
             this.p5Chart.setClickTimeoutId(undefined);
             this.p5Chart.windowResized();
 
@@ -863,49 +869,67 @@ export class ServiceAvailabilityComponent implements OnInit {
         p.rectMode(p.CENTER);
         p.textAlign(p.CENTER, p.CENTER);
         if (this.isWeekly == true) {
+          /* Weekly */
+
+          /* Bugs to be solved: 
+          *   - Test if crossing one year end
+          *   - Test if startdate is inside first week of next month
+          *   - Test if calculates the correct number of weeks per month
+           */
+
+
           let counter = 0;
           for (var i = 0; i < this.requestedMonthNumber; i++) {
             /* Months header text */
             p.fill(200);
             p.noStroke();
             p.textSize(dateFontSize);
-            p.text(this.monthOfYear[this.requestedStartMonth + i], xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim - dayYDim/1.5);
+            p.text(this.monthOfYear[this.requestedStartMonth + i], xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim - dayYDim/1.5);
             for (var k = 0; k < this.weekPerMonth[i]; k++) {
-              /* Weeks text and fill */
-              //if (this.requestedServiceAvailabilityList[])
+              /* Black empty background */
               p.stroke(70);
               p.fill(20);
-              p.rect(xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim, dayXDim, dayYDim);
-              p.noStroke();
-              p.fill(0,150);
-              p.rect(xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim - dayYDim/4.0, dayXDim / 1.2, dayYDim / 4, 5);
-              p.fill(200);
-              p.noStroke();
-              p.textSize(dateFontSize);
+              p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim + k * dayYDim, dayXDim, dayYDim);
+              if (k == 3 && this.weekPerMonth[i] == 4) {
+                p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim + (k+1) * dayYDim, dayXDim, dayYDim);
+              }
               let dates: string[] = this.getYearMonthWeekDatesString(this.startDateTemp.getFullYear(), this.requestedStartMonth + i, k);
               //console.log("this.monthWeekShift: " + this.monthWeekShift);
               //console.log("Week i: " + i + " k: " + k + " percentage = " + this.completeWeeklyCalendarServiceAvailabilityList[counter].percentage);
               if (dates != null) {
+                p.fill(200);
+                p.noStroke();
+                p.textSize(dateFontSize);
                 let tempPercentage = -1;
                 tempPercentage = this.completeWeeklyCalendarServiceAvailabilityList[counter].percentage;
                 if (tempPercentage != -1 && tempPercentage != null) {
                   p.fill(this.getAvailabilityIntsColorFromPerc(this.completeWeeklyCalendarServiceAvailabilityList[counter].percentage));
-                  p.rect(xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim, dayXDim, dayYDim);
+                  p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim + k * dayYDim, dayXDim, dayYDim);
                 }
-                p.text(tempPercentage == null ? "" : "From: " + dates[0] + "\nTo: " + dates[1], xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2 * dayYDim + k * dayYDim + 1 - dayYDim/4.0);
-                p.fill(100);
+                /* Shaded date background rect */
+                p.noStroke();
+                p.fill(0,150);
+                p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim + k * dayYDim - dayYDim/4.0, dayXDim / 1.1, dayYDim / 3, 5);
+                /* Week Date string */
+                p.fill(200);
+                p.noStroke();
+                p.text(tempPercentage == null ? "" : "From: " + dates[0] + "\nTo: " + dates[1], xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2 * dayYDim + k * dayYDim + 1 - dayYDim/4.0);
+                /* Value string */
+                p.fill(tempPercentage < 0 ? 100 : 30);
                 p.textSize(valueFontSize);
                 p.text((tempPercentage == null) ? "" : (tempPercentage < 0) ? "NaN" : tempPercentage == 100 ? "100.00%": tempPercentage.toFixed(2) +"%",
-                      xCenter - 1.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2 * dayYDim + k * dayYDim + 1 + dayYDim/5.5);
+                      xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0 * dayYDim + k * dayYDim + 1 + dayYDim/5.5);
               }
               counter++;
             }
           }
+          /* External Frame */
           p.stroke(200);
           p.fill(0,0);
           p.rectMode(p.CORNER);
-          p.rect(xCenter - (this.requestedMonthNumber)/2.0*dayXDim, yCenter - 2.5*dayYDim, dayXDim * this.requestedMonthNumber, dayYDim * 5);
-        } else {        
+          p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim, yCenter - 2.5*dayYDim, dayXDim * this.requestedMonthNumber, dayYDim * 5);
+        } else {
+          /* Daily */
           p.rectMode(p.CENTER);
           for (var i = 0; i < 7; i++) {
             p.fill(200);
@@ -950,6 +974,7 @@ export class ServiceAvailabilityComponent implements OnInit {
               }
             }
           }
+          /* External Frame */
           p.stroke(200);
           p.fill(0,0);
           p.rectMode(p.CORNER);
