@@ -71,9 +71,7 @@ export class ServiceAvailabilityComponent implements OnInit {
   public averageServiceAvailability: number = -1;
   public weekPerMonth: number[] = [];
 
-  //public dayOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   public dayOfWeek = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-  //public monthOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   public monthOfYear = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   public weekdayShift: number = 0;
   public weekdayStopShift: number = 0;
@@ -99,6 +97,9 @@ export class ServiceAvailabilityComponent implements OnInit {
   public askForWeekly: boolean = false;
   public firstDailySubmitted: boolean = false;
   public firstWeeklySubmitted: boolean = false;
+
+  public tempNextMonthFirstDay: number;
+  public tempDiffDaysToSecondMonth: number;
 
   constructor(
     public authenticationService: AuthenticationService,
@@ -158,7 +159,7 @@ export class ServiceAvailabilityComponent implements OnInit {
     let tempMillisDate: number = 0;
     if (this.askForWeekly == true) {
       tempMillisDate = (Date.parse(date) + this.millisPerMaxWindow);
-      if (Date.parse(this.stopDate) > tempMillisDate) { 
+      if (Date.parse(this.stopDate) > tempMillisDate) {
         this.alert.showErrorAlert("Check Date Range", "Please select a maximum range of 90 days");
         let tempDate = new Date(tempMillisDate);
         this.stopDate = tempDate.toISOString().slice(0, 10);
@@ -267,9 +268,18 @@ export class ServiceAvailabilityComponent implements OnInit {
             this.weekdayShift = (tempStartDate.getDay() == 0 ? 6 : (tempStartDate.getDay() - 1));
             this.weekdayStopShift = (tempStopDate.getDay() == 0 ? 0 : (7 - tempStopDate.getDay()));
             this.requestedWeeksNumber = Math.ceil((((tempTimeDifference + (this.weekdayShift + this.weekdayStopShift) * this.millisPerDay ) / this.millisPerDay) + 1) / 7);
+
             this.requestedStartMonth = tempStartDate.getMonth();
-            this.requestedStopMonth = tempStopDate.getMonth();
-            this.requestedMonthNumber = this.requestedStartMonth > this.requestedStopMonth ? (12 - this.requestedStartMonth + this.requestedStopMonth) + 1 : (this.requestedStopMonth - this.requestedStartMonth) + 1;
+            this.requestedStopMonth = new Date(tempStopDate.valueOf() + this.weekdayStopShift * this.millisPerDay).getMonth();//tempStopDate.getMonth();
+
+            this.tempNextMonthFirstDay = (this.requestedStartMonth == 11 ? new Date(new Date(this.startDate).getFullYear()+1, 0).getDay() : new Date(new Date(this.startDate).getFullYear(), this.requestedStartMonth + 1).getDay());
+            this.tempDiffDaysToSecondMonth = Math.ceil(((this.requestedStartMonth == 11 ? new Date(new Date(this.startDate).getFullYear()+1, 0).getTime() : new Date(new Date(this.startDate).getFullYear(), this.requestedStartMonth + 1).getTime()) - new Date(this.startDate).getTime()) / this.millisPerDay);
+
+            if (this.tempDiffDaysToSecondMonth > 0 && this.tempDiffDaysToSecondMonth < this.tempNextMonthFirstDay) {
+              this.requestedStartMonth++;
+            }
+            this.requestedMonthNumber = (this.requestedStartMonth > this.requestedStopMonth ? (12 - this.requestedStartMonth + this.requestedStopMonth) + 1 : (this.requestedStopMonth - this.requestedStartMonth) + 1);
+
             this.requestedServiceAvailabilityList = [];
             if (this.availabilityWeeksNumber > 0) {
               this.averageServiceAvailability = res.values[0].average;
@@ -292,23 +302,24 @@ export class ServiceAvailabilityComponent implements OnInit {
                 }
               }
             }
-            let firstDates: string[] = this.getYearMonthWeekDatesString(this.startDateTemp.getFullYear(), this.requestedStartMonth, 0);
+            let firstDates: string[] = this.getYearMonthWeekDatesString(new Date(this.startDate).getFullYear(), this.requestedStartMonth, 0);
             this.monthWeekShift = Math.floor((Date.parse(this.startDate) - Date.parse(firstDates[0])) / this.millisPerWeek);
+
             let counter = 0;
+            this.weekPerMonth = [];
             for (var i = 0; i < this.requestedMonthNumber; i++) {
               /* Calculate number of weeks per month */
               this.weekPerMonth.push(this.maxWeeksPerMonth);
               for (var k = 0; k < this.maxWeeksPerMonth; k++) {
-                let lastDates: string[] = this.getYearMonthWeekDatesString(this.startDateTemp.getFullYear(), this.requestedStartMonth + i, k);
+                let lastDates: string[] = this.getYearMonthWeekDatesString(new Date(this.startDate).getFullYear(), this.requestedStartMonth + i, k);
                 if (lastDates == null) {
                   this.weekPerMonth[i] = k;
                   break;
                 }
               }
-              console.log("this.weekPerMonth[" + i + "]: " + this.weekPerMonth[i]);
               for (var k = 0; k < this.weekPerMonth[i]; k++) {
                 if (counter >= this.monthWeekShift && counter < this.requestedWeeksNumber + this.monthWeekShift) {
-                  this.completeWeeklyCalendarServiceAvailabilityList[counter] = this.requestedServiceAvailabilityList[counter - this.monthWeekShift];             
+                  this.completeWeeklyCalendarServiceAvailabilityList[counter] = this.requestedServiceAvailabilityList[counter - this.monthWeekShift];
                 } else {
                   this.completeWeeklyCalendarServiceAvailabilityList[counter] = {
                     date: "",
@@ -319,9 +330,7 @@ export class ServiceAvailabilityComponent implements OnInit {
                 }
                 counter++;
               }
-              //console.log("Month: " + i + " - weekPerMonth: " + this.weekPerMonth[i]);
             }
-            //console.log("this.completeWeeklyCalendarServiceAvailabilityList : " + JSON.stringify(this.completeWeeklyCalendarServiceAvailabilityList, null, 2));
             this.rowNumber = 5;
             this.p5Chart.setClickTimeoutId(undefined);
             this.p5Chart.windowResized();
@@ -350,7 +359,7 @@ export class ServiceAvailabilityComponent implements OnInit {
             } else {
               this.averageServiceAvailability = -1;
             }
-            
+
             for (var i = 0; i < this.requestedDaysNumber; i++) {
               this.requestedServiceAvailabilityList[i] = {
                 date: new Date(Date.parse(this.startDate) + (i * this.millisPerDay)).toISOString().slice(0,10),
@@ -360,15 +369,15 @@ export class ServiceAvailabilityComponent implements OnInit {
               }
             }
             this.serviceAvailabilityList = res.values;
-  
+
             /* Calculate week-day shift */
             this.weekdayShift = (tempStartDate.getDay() == 0 ? 6 : tempStartDate.getDay() - 1);
             if ((this.weekdayShift == 6 && this.requestedDaysNumber >= 30) || (this.weekdayShift == 5 && this.requestedDaysNumber == 31)) {
               this.rowNumber = 6;
             } else {
               this.rowNumber = 5;
-            }          
-  
+            }
+
             for (var i = 0; i < this.requestedDaysNumber; i++) {
               for (var k = 0; k < this.availabilityDaysNumber; k++) {
                 if (this.serviceAvailabilityList[k].date == this.requestedServiceAvailabilityList[i].date) {
@@ -389,7 +398,7 @@ export class ServiceAvailabilityComponent implements OnInit {
           this.firstDailySubmitted = true;
         }
       );
-    }    
+    }
   }
 
   onBackToDailyClicked() {
@@ -454,7 +463,7 @@ export class ServiceAvailabilityComponent implements OnInit {
             if (!(c == (table.rows[r].childElementCount - 1) && r == (table.childElementCount - 1))) csvContent += ',';
           }
           r < (table.childElementCount - 1) ? csvContent += '\n' : null;
-        }  
+        }
         this.csvService.exportToCsv(
           'DAFNE-Service_Weekly_Availability('
           + this.localCentre.name
@@ -481,7 +490,7 @@ export class ServiceAvailabilityComponent implements OnInit {
               if (!(c == (table.rows[r].childElementCount - 1) && r == (table.childElementCount - 1))) csvContent += ',';
             }
             r < (table.childElementCount - 1) ? csvContent += '\n' : null;
-          }      
+          }
         this.csvService.exportToCsv(
           'DAFNE-Service_Daily_Availability('
           + this.localCentre.name
@@ -546,6 +555,8 @@ export class ServiceAvailabilityComponent implements OnInit {
         p.textFont('NotesESA-Reg');
         canvasSpace.mouseWheel(e => wheelZoom(e));
         canvasSpace.doubleClicked(resetZoom);
+
+
       };
 
       p.draw = () => {
@@ -602,12 +613,12 @@ export class ServiceAvailabilityComponent implements OnInit {
                 }
               }
             }, 500)
-          }      
-        }  
+          }
+        }
       }
 
       p.setClickTimeoutId = (id) => {
-        clickTimerId = id;    
+        clickTimerId = id;
       }
 
       function applyScale(s) {
@@ -617,7 +628,7 @@ export class ServiceAvailabilityComponent implements OnInit {
         } else {
           tx = p.mouseX * (1-s) + tx * s;
           ty = p.mouseY * (1-s) + ty * s;
-        }        
+        }
       }
 
       function wheelZoom(e) {
@@ -631,7 +642,7 @@ export class ServiceAvailabilityComponent implements OnInit {
         ty = 0;
       }
 
-      
+
 
       p.windowResized = () => {
         canvasWidth = canvas.clientWidth;
@@ -680,7 +691,7 @@ export class ServiceAvailabilityComponent implements OnInit {
             if (sinOfAngleTemp < 0.001) {
               sinOfAngleTemp = 0.001;
             }
-            let sinOfAngle = sinOfAngleTemp * (p.textWidth(weekEndText) / 2); 
+            let sinOfAngle = sinOfAngleTemp * (p.textWidth(weekEndText) / 2);
             p.push();
             p.translate(sectionXCenter, yCenter + chartYDim2 + sinOfAngle + 3 * dateFontSize);
             if (angle > p.PI / 2) angle = p.PI / 2;
@@ -708,7 +719,7 @@ export class ServiceAvailabilityComponent implements OnInit {
             /* If mouse is on bar */
             if (p.mouseX > sectionXCenter - (chartXDim / this.requestedWeeksNumber)/2 + tx && p.mouseX < sectionXCenter + (chartXDim / this.requestedWeeksNumber)/2 + tx
                 && p.mouseY > yCenter - chartYDim2 + ty && p.mouseY < yCenter + chartYDim2 + sinOfAngle + 4 * dateFontSize + ty) {
-              
+
               /* Selector box */
               p.stroke(230);
               p.fill(255, 30);
@@ -719,10 +730,10 @@ export class ServiceAvailabilityComponent implements OnInit {
               p.textSize(percentageFontSize);
               p.noStroke();
               p.fill(lineColor);
-              p.text((this.requestedServiceAvailabilityList[i].percentage == null || this.requestedServiceAvailabilityList[i].percentage < 0) ? "NaN" : this.requestedServiceAvailabilityList[i].percentage == 100 ? "100.00%": this.requestedServiceAvailabilityList[i].percentage.toFixed(2) +"%", 
+              p.text((this.requestedServiceAvailabilityList[i].percentage == null || this.requestedServiceAvailabilityList[i].percentage < 0) ? "NaN" : this.requestedServiceAvailabilityList[i].percentage == 100 ? "100.00%": this.requestedServiceAvailabilityList[i].percentage.toFixed(2) +"%",
                       sectionXCenter, yCenter - chartYDim2 - 2 * dateFontSize);
             }
-          } 
+          }
           /* Scheme */
           p.rectMode(p.CENTER);
           p.textAlign(p.RIGHT, p.CENTER);
@@ -773,9 +784,9 @@ export class ServiceAvailabilityComponent implements OnInit {
             p.noStroke();
             p.textSize(dateFontSize);
 
-            /* Rotate Dates */          
+            /* Rotate Dates */
             let tempText
-            tempText = this.requestedServiceAvailabilityList[i].date;          
+            tempText = this.requestedServiceAvailabilityList[i].date;
             let tempRadium = (sectionXFilledDim - (2 * barGap) - dateFontSize);
             let angle = 0;
             if (tempRadium > p.textWidth(tempText)) tempRadium = p.textWidth(tempText);
@@ -811,7 +822,7 @@ export class ServiceAvailabilityComponent implements OnInit {
             /* If mouse is on bar */
             if (p.mouseX > sectionXCenter - (chartXDim / this.requestedDaysNumber)/2 + tx && p.mouseX < sectionXCenter + (chartXDim / this.requestedDaysNumber)/2 + tx
                 && p.mouseY > yCenter - chartYDim2 + ty && p.mouseY < yCenter + chartYDim2 + sinOfAngle + 4 * dateFontSize + ty) {
-              
+
               /* Selector box */
               p.stroke(230);
               p.fill(255, 30);
@@ -822,10 +833,10 @@ export class ServiceAvailabilityComponent implements OnInit {
               p.textSize(percentageFontSize);
               p.noStroke();
               p.fill(lineColor);
-              p.text((this.requestedServiceAvailabilityList[i].percentage == null || this.requestedServiceAvailabilityList[i].percentage < 0) ? "NaN" : this.requestedServiceAvailabilityList[i].percentage == 100 ? "100.00%": this.requestedServiceAvailabilityList[i].percentage.toFixed(2) +"%", 
+              p.text((this.requestedServiceAvailabilityList[i].percentage == null || this.requestedServiceAvailabilityList[i].percentage < 0) ? "NaN" : this.requestedServiceAvailabilityList[i].percentage == 100 ? "100.00%": this.requestedServiceAvailabilityList[i].percentage.toFixed(2) +"%",
                       sectionXCenter, yCenter - chartYDim2 - 2 * dateFontSize);
             }
-          } 
+          }
           /* Scheme */
           p.rectMode(p.CENTER);
           p.textAlign(p.RIGHT, p.CENTER);
@@ -865,19 +876,11 @@ export class ServiceAvailabilityComponent implements OnInit {
         }
       }
 
-      p.fillCalendarChart = () => {        
+      p.fillCalendarChart = () => {
         p.rectMode(p.CENTER);
         p.textAlign(p.CENTER, p.CENTER);
         if (this.isWeekly == true) {
           /* Weekly */
-
-          /* Bugs to be solved: 
-          *   - Test if crossing one year end
-          *   - Test if startdate is inside first week of next month
-          *   - Test if calculates the correct number of weeks per month
-           */
-
-
           let counter = 0;
           for (var i = 0; i < this.requestedMonthNumber; i++) {
             /* Months header text */
@@ -885,17 +888,17 @@ export class ServiceAvailabilityComponent implements OnInit {
             p.noStroke();
             p.textSize(dateFontSize);
             p.text(this.monthOfYear[this.requestedStartMonth + i], xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim - dayYDim/1.5);
+
             for (var k = 0; k < this.weekPerMonth[i]; k++) {
               /* Black empty background */
               p.stroke(70);
               p.fill(20);
               p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim + k * dayYDim, dayXDim, dayYDim);
+              /* Add fifth empty rect if there are only 4 weeks in this month */
               if (k == 3 && this.weekPerMonth[i] == 4) {
                 p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim + 0.5*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2.0*dayYDim + (k+1) * dayYDim, dayXDim, dayYDim);
               }
-              let dates: string[] = this.getYearMonthWeekDatesString(this.startDateTemp.getFullYear(), this.requestedStartMonth + i, k);
-              //console.log("this.monthWeekShift: " + this.monthWeekShift);
-              //console.log("Week i: " + i + " k: " + k + " percentage = " + this.completeWeeklyCalendarServiceAvailabilityList[counter].percentage);
+              let dates: string[] = this.getYearMonthWeekDatesString(new Date(this.startDate).getFullYear(), this.requestedStartMonth + i, k);
               if (dates != null) {
                 p.fill(200);
                 p.noStroke();
@@ -925,9 +928,32 @@ export class ServiceAvailabilityComponent implements OnInit {
           }
           /* External Frame */
           p.stroke(200);
-          p.fill(0,0);
+          p.noFill();
           p.rectMode(p.CORNER);
           p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim, yCenter - 2.5*dayYDim, dayXDim * this.requestedMonthNumber, dayYDim * 5);
+
+          counter = 0;
+          for (var i = 0; i < this.requestedMonthNumber; i++) {
+            for (var k = 0; k < this.weekPerMonth[i]; k++) {
+              let tempPercentage = -1;
+              tempPercentage = this.completeWeeklyCalendarServiceAvailabilityList[counter].percentage;
+              if (tempPercentage != null) {
+                /* If mouse is on bar */
+                if (p.mouseX > xCenter - (this.requestedMonthNumber/2.0)*dayXDim + i * dayXDim && p.mouseX < xCenter - (this.requestedMonthNumber/2.0)*dayXDim + i * dayXDim + dayXDim
+                    && p.mouseY > yCenter - (this.rowNumber)/2.0*dayYDim + k * dayYDim && p.mouseY < yCenter - (this.rowNumber)/2.0*dayYDim + k * dayYDim + dayYDim) {
+
+                  /* Selector box */
+                  p.stroke(230);
+                  p.fill(255, 30);
+                  p.rect(xCenter - (this.requestedMonthNumber/2.0)*dayXDim + i * dayXDim, yCenter - (this.rowNumber)/2.0*dayYDim + k * dayYDim, dayXDim, dayYDim);
+                  this.mouseIsOnList[counter - this.monthWeekShift] = true;
+                }
+              }
+
+              counter++;
+            }
+          }
+
         } else {
           /* Daily */
           p.rectMode(p.CENTER);
@@ -941,7 +967,7 @@ export class ServiceAvailabilityComponent implements OnInit {
                 if (this.requestedServiceAvailabilityList[i+k*7 - this.weekdayShift].percentage == -1) {
                   p.stroke(70);
                   p.fill(20);
-                  p.rect(xCenter - 3*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim, dayXDim, dayYDim);               
+                  p.rect(xCenter - 3*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim, dayXDim, dayYDim);
                   p.noStroke();
                   p.fill(0,150);
                   p.rect(xCenter - 3*dayXDim + i * dayXDim, yCenter - (this.rowNumber-1)/2*dayYDim + k * dayYDim - dayYDim/4.0, dayXDim / 1.2, dayYDim / 4, 5);
@@ -998,19 +1024,15 @@ export class ServiceAvailabilityComponent implements OnInit {
 
   */
   getYearMonthWeekDatesString(year, month, week) {
-    //console.log("Year: " + year + " - month: " + month + " - week: " + week);    
     let dates: string[] = [];
     let tempFirst = new Date(year, month);
     let userTimezoneOffset = tempFirst.getTimezoneOffset() * 60000;
-    let tempFirstDayNum = (tempFirst.getDay() == 0 ? 6 : tempFirst.getDay() - 1); 
-    //console.log("tempFirst: " + tempFirst + " - tempFirstDayNum: " + tempFirstDayNum);
+    let tempFirstDayNum = (tempFirst.getDay() == 0 ? 6 : tempFirst.getDay() - 1);
     let weekStart = new Date(tempFirst.valueOf() - userTimezoneOffset - (this.millisPerDay * tempFirstDayNum) + (this.millisPerWeek * week));
-    //console.log("weekStart: " + weekStart + " - toIso: " + weekStart.toISOString() + " - sliced: " + weekStart.toISOString().slice(0, 10));
     let weekStop = new Date(weekStart.valueOf() - userTimezoneOffset + (this.millisPerDay * 6));
-    //console.log("weekStop: " + weekStop.toISOString().slice(0, 10));
     dates.push(weekStart.toISOString().slice(0, 10));
     dates.push(weekStop.toISOString().slice(0, 10));
-    if (week == 4 && weekStop.getMonth() == month + 1) {
+    if (week == 4 && weekStop.getMonth() != month) {
       return null;
     }
     return dates;
