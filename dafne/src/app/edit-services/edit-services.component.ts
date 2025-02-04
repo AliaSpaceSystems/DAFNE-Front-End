@@ -11,12 +11,14 @@ const regexPatterns = {
   add_service_username: "^.{1,60}$",
   add_service_password: "^.{1,60}$",
   add_service_url: "^[^\ \,\;]{1,256}$",
+  add_token_url: "^[^\ \,\;]{1,256}$",
   add_service_type: "^.{1,60}$",
   add_centre: "^.{1,60}$",
 
   edit_service_username: "^.{1,60}$",
   edit_service_password: "",
   edit_service_url: "^[^\ \,\;]{1,256}$",
+  edit_token_url: "^[^\ \,\;]{1,256}$",
   edit_service_type: "^.{1,60}$",
   edit_centre: "^.{1,60}$"
 };
@@ -35,6 +37,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
   public service: Service = new Service();
   public tempServiceIdToDelete = -1;
   public tempServiceUrlToDelete = '';
+  public showOauth2Fields: boolean = false;
   
   public serviceTypesList;
 
@@ -163,6 +166,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     let element = document.getElementById('add_service_type');
     (<HTMLInputElement>element).value = this.service.service_type;
     element.dispatchEvent(new KeyboardEvent('input', { 'bubbles': true }));
+    this.checkOauth2Support(id);
   }
 
   setNewFormCentre(centreId: number) {
@@ -186,7 +190,8 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     this.service.service_type = '';
     this.service.username = '';
     this.service.password = '';
-    this.service.service_url = '';    
+    this.service.service_url = '';
+    this.service.token_url = '';    
     this.service.centre = '';
     let inputs = document.querySelectorAll('#addServiceForm input.form-control');
     inputs.forEach((input) => {
@@ -194,6 +199,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
       if ((<HTMLInputElement>input).id == "add_service_username") (<HTMLInputElement>input).value = this.service.username;
       if ((<HTMLInputElement>input).id == "add_service_password") (<HTMLInputElement>input).value = this.service.password;
       if ((<HTMLInputElement>input).id == "add_service_url") (<HTMLInputElement>input).value = this.service.service_url;
+      if ((<HTMLInputElement>input).id == "add_token_url") (<HTMLInputElement>input).value = this.service.token_url;
       if ((<HTMLInputElement>input).id == "add_centre") (<HTMLInputElement>input).value = this.service.centre;
     });
     var eyeEl = document.getElementById('toggleAddPassword');
@@ -242,6 +248,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
         username: (<HTMLInputElement>document.getElementById("add_service_username")).value,
         password: (<HTMLInputElement>document.getElementById('add_service_password')).value,
         service_url: (<HTMLInputElement>document.getElementById('add_service_url')).value,
+        token_url: (<HTMLInputElement>document.getElementById('add_token_url')).value,
         service_type: tempServiceTypeId,
         centre: tempCentreId,
       };
@@ -281,6 +288,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     this.service.username = this.serviceList.filter(a => a.id === id)[0].username;
     this.service.password = '';
     this.service.service_url = this.serviceList.filter(a => a.id === id)[0].service_url;
+    this.service.token_url = this.serviceList.filter(a => a.id === id)[0].token_url;
     this.service.service_type = this.serviceList.filter(a => a.id === id)[0].service_type;
     this.service.centre = this.serviceList.filter(a => a.id === id)[0].centre;
 
@@ -331,6 +339,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
         body = {
           username: (<HTMLInputElement>document.getElementById("edit_service_username")).value,
           service_url: (<HTMLInputElement>document.getElementById('edit_service_url')).value,
+          token_url: (<HTMLInputElement>document.getElementById('edit_token_url')).value,
           service_type: tempServiceTypeId,
           centre: tempCentreId,
         };       
@@ -339,6 +348,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
           username: (<HTMLInputElement>document.getElementById("edit_service_username")).value,
           password: (<HTMLInputElement>document.getElementById('edit_service_password')).value,
           service_url: (<HTMLInputElement>document.getElementById('edit_service_url')).value,
+          token_url: (<HTMLInputElement>document.getElementById('edit_token_url')).value,
           service_type: tempServiceTypeId,
           centre: tempCentreId,
         };
@@ -384,5 +394,12 @@ export class EditServicesComponent implements OnInit, OnDestroy {
         this.router.navigate(['edit-services'], { skipLocationChange: true });
       }
     );
+  }
+
+  checkOauth2Support(id: number) {
+    if (id) {
+      console.log("Service Type ID: ", id);
+      this.showOauth2Fields = this.serviceTypesList.filter((a: any) => a.id == id)[0].supports_oauth2;
+    }
   }
 }

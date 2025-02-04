@@ -36,7 +36,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           /* auto logout if 401 response returned from api */
           console.log("ERROR 401: Not Authorized");
           
-          this.authenticationService.logout().subscribe(
+          /* this.authenticationService.logout().subscribe(
             data => {
               console.log("Logout successful!");
               this.authenticationService.isAuthenticated = false;
@@ -46,7 +46,7 @@ export class ErrorInterceptor implements HttpInterceptor {
             error => {
               console.log(error);
               console.log(error.status);
-            });
+            }); */
         } else if (err.status === 404) {
           /* show alert with message if error is 404: Not found */
           console.log("ERROR 404: Not Found.");

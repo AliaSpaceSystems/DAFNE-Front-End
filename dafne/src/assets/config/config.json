@@ -18,12 +18,14 @@
         {"threshold": 95.0, "color": "#ffff00"},
         {"threshold": 98.0, "color": "#92d050"},
         {"threshold": 99.0, "color": "#00b050"},
-        {"threshold": 100.0, "color": "#00b050"}        
+        {"threshold": 100.0, "color": "#00b050"}
     ],
     "averageAvailabilityColor": "#00d0ff",
     "dataRefreshTime": 300000,
-    "apiUrl": "<back-end-url>",
-    "version": "3.0.1",
+    "apiUrl_LOCAL": "http://localhost:3000",
+    "apiUrl_OVH": "http://57.128.60.105:3000",
+    "apiUrl": "http://127.0.0.1:2000",
+    "version": "4.0.0",
     "satelliteList": [
         {
             "name": "Sentinel-1",
