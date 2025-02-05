@@ -34,9 +34,9 @@ export class ErrorInterceptor implements HttpInterceptor {
 
         if (err.status === 401) {
           /* auto logout if 401 response returned from api */
-          console.log("ERROR 401: Not Authorized");
+          console.log("Err Int - ERROR 401: Not Authorized");
           
-          /* this.authenticationService.logout().subscribe(
+          this.authenticationService.logout().subscribe(
             data => {
               console.log("Logout successful!");
               this.authenticationService.isAuthenticated = false;
@@ -46,7 +46,12 @@ export class ErrorInterceptor implements HttpInterceptor {
             error => {
               console.log(error);
               console.log(error.status);
-            }); */
+            });
+        } else if (err.status === 403) {
+          /* Cannot login if 403 response returned from api */          
+          console.log("ERROR 403: Invalid role.");
+          this.alert.showErrorAlert("ERROR " + err.status + ": " + err.statusText + " - Invalid role.", err.message);
+          this.reloadCurrentRoute();
         } else if (err.status === 404) {
           /* show alert with message if error is 404: Not found */
           console.log("ERROR 404: Not Found.");

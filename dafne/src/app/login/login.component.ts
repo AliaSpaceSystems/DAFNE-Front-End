@@ -53,12 +53,13 @@ export class LoginComponent implements OnInit {
 				error => {
 					console.log(error);
 					console.log(error.status);
-					if (error.status === 403) {
+					/* if (error.status === 403) {
 						this.toast.showErrorToast('Confirm Registration', 'Account locked. Please check your email to confirm your registration.');
             console.log("Account locked. Please check your email to confirm your registration.");
-          }	else if (error.status === 401) {
-						this.toast.showErrorToast('Check User Roles', 'Access denied. Incorrect user role.');
-            console.log("Access denied. Incorrect user role.");
+          }	else */ 
+          if (error.status === 403) {
+						this.toast.showErrorToast('Check User Roles', 'Access denied. Invalid user role.');
+            console.log("Access denied. Invalid user role.");
           }	else {
 						this.toast.showErrorToast('Login Failed', 'Invalid username and/or password');
             console.log("Invalid username and/or password");
@@ -69,7 +70,8 @@ export class LoginComponent implements OnInit {
               error => {
                 console.log(error);
                 console.log(error.status);
-              });
+              }
+            );
           }
 				});
 	}
