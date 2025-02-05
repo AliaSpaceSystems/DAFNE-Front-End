@@ -142,8 +142,14 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   getAllCentres(): any {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
-        console.log("DEV - res: ", res);
-        this.data_source = res;
+        var resultForLocal = Object.values(res).filter((x) => x.local === true);
+        if (resultForLocal[0] == undefined) {
+          this.localId = -1;
+        } else {
+          this.localId = resultForLocal[0].id;
+        }
+        //this.data_source = res;
+        this.data_source = resultForLocal;
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
         this.remoteCentreList.sort(this.getSortOrder("id"));
         this.allCentreList = res;
@@ -171,11 +177,11 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   getActiveDataSource(): any {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
-        var result = Object.values(res).filter((x) => x.local === true);
-        if (result[0] == undefined) {
+        var resultForLocal = Object.values(res).filter((x) => x.local === true);
+        if (resultForLocal[0] == undefined) {
           this.localId = -1;
         } else {
-          this.localId = result[0].id;
+          this.localId = resultForLocal[0].id;
         }
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
         this.remoteCentreList.sort(this.getSortOrder("id"));
@@ -208,11 +214,11 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   getDHSConnected(): any {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
-        var result = Object.values(res).filter((x) => x.local === true);
-        if (result[0] == undefined) {
+        var resultForLocal = Object.values(res).filter((x) => x.local === true);
+        if (resultForLocal[0] == undefined) {
           this.localId = -1;
         } else {
-          this.localId = result[0].id;
+          this.localId = resultForLocal[0].id;
         }
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
         this.remoteCentreList.sort(this.getSortOrder("id"));
@@ -324,7 +330,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
         url: this.ICON_MAPPING[d.icon],
         width: 64,
         height: 64,
-        anchorY: 32,
+        anchorY: 64,
         mask: true
       }),
       parameters: {
@@ -347,11 +353,11 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getText: (d:any) => d.name,
       getSize: AppConfig.settings.mapSettings.textSize,
       sizeUnits: 'pixels',
-      getPixelOffset: (d:any) => (d.textAnchor == 'end' ? [-20, 0] : [20, 0]),
+      getPixelOffset: (d:any) => (d.textAnchor == 'end' ? [-20, -6] : [20, -6]),
       getAngle: 0,
       getColor: [255, 255, 255],
       getTextAnchor: (d:any) => d.textAnchor,
-      getAlignmentBaseline: 'center'
+      getAlignmentBaseline: 'bottom'
     });
 
     const arcLayer = new ArcLayer({
