@@ -142,6 +142,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   getAllCentres(): any {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
+        console.log("DEV - res: ", res);
         this.data_source = res;
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
         this.remoteCentreList.sort(this.getSortOrder("id"));
@@ -313,40 +314,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       lineWidthUnits: 'pixels',
       getLineWidth: 1
     });
-    //(Mapboxgl as any).accessToken = environment.mapboxKey;
-    /* this.map = new Mapboxgl.Map({
-      interactive: true,
-      container: 'map-content', // container ID
-      style: 'mapbox://styles/alia-space/ckv8beuxo066514s0n5zoe2xa',
-      center: [this.INITIAL_VIEW_STATE.longitude, this.INITIAL_VIEW_STATE.latitude],
-      zoom: this.INITIAL_VIEW_STATE.zoom,
-      minZoom: 2.5,
-      bearing: this.INITIAL_VIEW_STATE.bearing,
-      maxPitch: 55,
-      pitch: this.INITIAL_VIEW_STATE.pitch,
-      attributionControl: false,
-      antialias: true,
-      renderWorldCopies: false,
-      maxBounds: [[-180, -85], [180, 85]]
-    }); */
 
-    /* const iconLayer = new MapboxLayer({
-      type: IconLayer,
-      id: 'icon-layer',
-      data: this.allCentreList,
-      pickable: true,
-      billboard: true, // false = flat on terrain, true = vertical
-      getIcon: d => ({
-        url: this.ICON_MAPPING[d.icon],
-        width: 64,
-        height: 64,
-        anchorY: 32,
-        mask: true
-      }),
-      getPosition: d => [d.longitude, d.latitude],
-      getSize: AppConfig.settings.mapSettings.iconSize,
-      getColor: d => this.rgbConvertToArray(d.color)
-    }); */
     const iconLayer = new IconLayer({
       id: 'icon-layer',
       data: this.allCentreList,
@@ -359,33 +327,22 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
         anchorY: 32,
         mask: true
       }),
-      getPosition: (d:any) => [d.longitude, d.latitude],
+      parameters: {
+        depthTest: false
+      },
+      getPosition: (d:any) => [d.longitude, d.latitude, 0],
       getSize: AppConfig.settings.mapSettings.iconSize,
       getColor: (d:any) => this.rgbConvertToArray(d.color)
     });
-
-   /*  const textLayer = new MapboxLayer({
-      type: TextLayer,
-      id: 'text-layer',
-      data: this.allCentreList,
-      fontFamily: '"NotesESA-Reg", Arial, Helvetica, sans-serif',
-      pickable: true,
-      getPosition: d => [d.longitude, d.latitude],
-      getText: d => d.name,
-      getSize: AppConfig.settings.mapSettings.textSize,
-      sizeUnits: 'pixels',
-      getPixelOffset: d => (d.textAnchor == 'end' ? [-20, 0] : [20, 0]),
-      getAngle: 0,
-      getColor: [255, 255, 255],
-      getTextAnchor: d => d.textAnchor,
-      getAlignmentBaseline: 'center'
-    }); */
 
     const textLayer = new TextLayer({
       id: 'text-layer',
       data: this.allCentreList,
       fontFamily: '"NotesESA-Reg", Arial, Helvetica, sans-serif',
       pickable: true,
+      parameters: {
+        depthTest: false
+      },
       getPosition: (d:any) => [d.longitude, d.latitude],
       getText: (d:any) => d.name,
       getSize: AppConfig.settings.mapSettings.textSize,
@@ -396,17 +353,6 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getTextAnchor: (d:any) => d.textAnchor,
       getAlignmentBaseline: 'center'
     });
-
-    /* const arcLayer = new MapboxLayer({
-      type: ArcLayer,
-      id: 'arcs-layer',
-      data: this.data_source,
-      getSourcePosition: [this.localCentre.longitude, this.localCentre.latitude],
-      getTargetPosition: d => [d.longitude, d.latitude],
-      getSourceColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
-      getTargetColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
-      getWidth: 1
-    }); */
 
     const arcLayer = new ArcLayer({
       id: 'arcs-layer',
@@ -427,10 +373,6 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       layers: [geoJsonLayer, iconLayer, textLayer, arcLayer],
       onViewStateChange: ({viewState}) => applyViewStateConstraints(viewState)
     });
-
-    /* const nav = new Mapboxgl.NavigationControl({
-      visualizePitch: true
-    }); */
 
     /* this.map.on('load', () => {
       if (this.map.getLayer('icon-layer')) this.map.removeLayer('icon-layer');
