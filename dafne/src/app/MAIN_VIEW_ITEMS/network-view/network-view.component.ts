@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
-import { Deck, MapViewState, PickingInfo } from '@deck.gl/core';
+import { Deck, MapViewState, PickingInfo, MapView } from '@deck.gl/core';
 import { GeoJsonLayer, ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
 //import { MapboxLayer } from '@deck.gl/mapbox';
 import { environment } from 'src/environments/environment';
@@ -287,11 +287,21 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
   /* Deck.gl with Mapbox interleaved */
   initDeck() {
-    console.log("Init Deck.");
     document.getElementById('map-content').innerHTML = "";
 
     let lineCol = 60;
-    const layer = new GeoJsonLayer({
+    //const bounds = [[-180, -85], [180, 85]];
+    const bounds = [[-170, -80], [170, 80]];
+
+    function applyViewStateConstraints(viewState: any) {
+      return {
+        ...viewState,
+        longitude: Math.min(bounds[1][0], Math.max(bounds[0][0], viewState.longitude)),
+        latitude: Math.min(bounds[1][1], Math.max(bounds[0][1], viewState.latitude))
+      };
+    }
+
+    const geoJsonLayer = new GeoJsonLayer({
       id: 'GeoJsonLayer',
       data: '../assets/world-countries.geojson',
 
@@ -319,13 +329,6 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       renderWorldCopies: false,
       maxBounds: [[-180, -85], [180, 85]]
     }); */
-    const deckInstance = new Deck({
-      parent: <HTMLDivElement>document.getElementById('map-content'),
-      initialViewState: this.INITIAL_VIEW_STATE,
-      controller: true,
-      //getTooltip: ({object}) => object && object.properties.name,
-      layers: [layer]
-    });
 
     /* const iconLayer = new MapboxLayer({
       type: IconLayer,
@@ -344,6 +347,22 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getSize: AppConfig.settings.mapSettings.iconSize,
       getColor: d => this.rgbConvertToArray(d.color)
     }); */
+    const iconLayer = new IconLayer({
+      id: 'icon-layer',
+      data: this.allCentreList,
+      pickable: true,
+      billboard: true, // false = flat on terrain, true = vertical
+      getIcon: (d:any) => ({
+        url: this.ICON_MAPPING[d.icon],
+        width: 64,
+        height: 64,
+        anchorY: 32,
+        mask: true
+      }),
+      getPosition: (d:any) => [d.longitude, d.latitude],
+      getSize: AppConfig.settings.mapSettings.iconSize,
+      getColor: (d:any) => this.rgbConvertToArray(d.color)
+    });
 
    /*  const textLayer = new MapboxLayer({
       type: TextLayer,
@@ -362,6 +381,22 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getAlignmentBaseline: 'center'
     }); */
 
+    const textLayer = new TextLayer({
+      id: 'text-layer',
+      data: this.allCentreList,
+      fontFamily: '"NotesESA-Reg", Arial, Helvetica, sans-serif',
+      pickable: true,
+      getPosition: (d:any) => [d.longitude, d.latitude],
+      getText: (d:any) => d.name,
+      getSize: AppConfig.settings.mapSettings.textSize,
+      sizeUnits: 'pixels',
+      getPixelOffset: (d:any) => (d.textAnchor == 'end' ? [-20, 0] : [20, 0]),
+      getAngle: 0,
+      getColor: [255, 255, 255],
+      getTextAnchor: (d:any) => d.textAnchor,
+      getAlignmentBaseline: 'center'
+    });
+
     /* const arcLayer = new MapboxLayer({
       type: ArcLayer,
       id: 'arcs-layer',
@@ -372,6 +407,26 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getTargetColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
       getWidth: 1
     }); */
+
+    const arcLayer = new ArcLayer({
+      id: 'arcs-layer',
+      data: this.data_source,
+      getSourcePosition: [this.localCentre.longitude, this.localCentre.latitude],
+      getTargetPosition: (d:any) => [d.longitude, d.latitude],
+      getSourceColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
+      getTargetColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
+      getWidth: 1
+    });
+
+    const deckInstance = new Deck({
+      parent: <HTMLDivElement>document.getElementById('map-content'),
+      initialViewState: this.INITIAL_VIEW_STATE,
+      controller: true,
+      views: new MapView({repeat: false}),
+      //getTooltip: ({object}) => object && object.properties.name,
+      layers: [geoJsonLayer, iconLayer, textLayer, arcLayer],
+      onViewStateChange: ({viewState}) => applyViewStateConstraints(viewState)
+    });
 
     /* const nav = new Mapboxgl.NavigationControl({
       visualizePitch: true
