@@ -1,8 +1,9 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
-import { ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
-import { MapboxLayer } from '@deck.gl/mapbox';
+import { Deck, MapViewState, PickingInfo } from '@deck.gl/core';
+import { GeoJsonLayer, ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
+//import { MapboxLayer } from '@deck.gl/mapbox';
 import { environment } from 'src/environments/environment';
-import * as Mapboxgl from 'mapbox-gl';
+//import * as Mapboxgl from 'mapbox-gl';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AppConfig } from '../../services/app.config';
 import { AuthenticationService } from '../../services/authentication.service';
@@ -72,7 +73,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
     pitch: 55 // Degrees angles from 0 to 60, with 0 = Zenith
   }
   public INITIAL_VIEW_STATE = this.HOME_INITIAL_VIEW_STATE;
-  private map: Mapboxgl.Map;
+  //private map: Mapboxgl.Map;
 
   private ICON_MAPPING = {
     home: 'assets/icons/home_black_48dp.svg',
@@ -135,7 +136,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   }
 
   windowResize() {
-    this.map.resize();
+    //this.map.resize();
   }
 
   getAllCentres(): any {
@@ -286,9 +287,24 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
   /* Deck.gl with Mapbox interleaved */
   initDeck() {
+    console.log("Init Deck.");
     document.getElementById('map-content').innerHTML = "";
-    (Mapboxgl as any).accessToken = environment.mapboxKey;
-    this.map = new Mapboxgl.Map({
+
+    let lineCol = 60;
+    const layer = new GeoJsonLayer({
+      id: 'GeoJsonLayer',
+      data: '../assets/world-countries.geojson',
+
+      stroked: true,
+      filled: true,
+      pickable: true,
+      getFillColor: [0, 0, 0], 
+      getLineColor: [lineCol, lineCol, lineCol],
+      lineWidthUnits: 'pixels',
+      getLineWidth: 1
+    });
+    //(Mapboxgl as any).accessToken = environment.mapboxKey;
+    /* this.map = new Mapboxgl.Map({
       interactive: true,
       container: 'map-content', // container ID
       style: 'mapbox://styles/alia-space/ckv8beuxo066514s0n5zoe2xa',
@@ -302,9 +318,16 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       antialias: true,
       renderWorldCopies: false,
       maxBounds: [[-180, -85], [180, 85]]
+    }); */
+    const deckInstance = new Deck({
+      parent: <HTMLDivElement>document.getElementById('map-content'),
+      initialViewState: this.INITIAL_VIEW_STATE,
+      controller: true,
+      //getTooltip: ({object}) => object && object.properties.name,
+      layers: [layer]
     });
 
-    const iconLayer = new MapboxLayer({
+    /* const iconLayer = new MapboxLayer({
       type: IconLayer,
       id: 'icon-layer',
       data: this.allCentreList,
@@ -320,9 +343,9 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getPosition: d => [d.longitude, d.latitude],
       getSize: AppConfig.settings.mapSettings.iconSize,
       getColor: d => this.rgbConvertToArray(d.color)
-    });
+    }); */
 
-    const textLayer = new MapboxLayer({
+   /*  const textLayer = new MapboxLayer({
       type: TextLayer,
       id: 'text-layer',
       data: this.allCentreList,
@@ -337,9 +360,9 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getColor: [255, 255, 255],
       getTextAnchor: d => d.textAnchor,
       getAlignmentBaseline: 'center'
-    });
+    }); */
 
-    const arcLayer = new MapboxLayer({
+    /* const arcLayer = new MapboxLayer({
       type: ArcLayer,
       id: 'arcs-layer',
       data: this.data_source,
@@ -348,13 +371,13 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       getSourceColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
       getTargetColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
       getWidth: 1
-    });
+    }); */
 
-    const nav = new Mapboxgl.NavigationControl({
+    /* const nav = new Mapboxgl.NavigationControl({
       visualizePitch: true
-    });
+    }); */
 
-    this.map.on('load', () => {
+    /* this.map.on('load', () => {
       if (this.map.getLayer('icon-layer')) this.map.removeLayer('icon-layer');
       if (this.map.getLayer('text-layer')) this.map.removeLayer('text-layer');
       if (this.map.getLayer('arcs-layer')) this.map.removeLayer('arcs-layer');
@@ -362,7 +385,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       this.map.addLayer(iconLayer);
       this.map.addLayer(textLayer);
       this.showArcs ? this.map.addLayer(arcLayer) : {};
-      /* uncomment to show nav controls */
+      /* uncomment to show nav controls 
       // this.map.addControl(nav, 'top-right');
 
       this.pageRefreshed = false;
@@ -373,7 +396,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
     this.map.on('resize', () => {
     });
-    
+     */
   }
 
   /* Function to convert [r, g, b] colors to html string: "#rrggbb" */
