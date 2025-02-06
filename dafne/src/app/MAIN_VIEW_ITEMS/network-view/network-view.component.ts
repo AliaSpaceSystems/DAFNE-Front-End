@@ -60,14 +60,14 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
   HOME_INITIAL_VIEW_STATE = {
     latitude: 48.0,
-    longitude: 7.5,
+    longitude: 17.5,
     zoom: 3.5,
     bearing: 0,
     pitch: 0
   }
   ACTIVE_INITIAL_VIEW_STATE = {
     latitude: 48.0,
-    longitude: 7.5,
+    longitude: 17.5,
     zoom: 4.0, // Values from 0 to 15
     bearing: 0, // POV rotation. Positive -> turn CW
     pitch: 55 // Degrees angles from 0 to 60, with 0 = Zenith
