@@ -1,8 +1,9 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
-import { ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
-import { MapboxLayer } from '@deck.gl/mapbox';
+import { Deck, MapViewState, PickingInfo, MapView } from '@deck.gl/core';
+import { GeoJsonLayer, ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
+//import { MapboxLayer } from '@deck.gl/mapbox';
 import { environment } from 'src/environments/environment';
-import * as Mapboxgl from 'mapbox-gl';
+//import * as Mapboxgl from 'mapbox-gl';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AppConfig } from '../../services/app.config';
 import { AuthenticationService } from '../../services/authentication.service';
@@ -59,20 +60,20 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
   HOME_INITIAL_VIEW_STATE = {
     latitude: 48.0,
-    longitude: 7.5,
+    longitude: 17.5,
     zoom: 3.5,
     bearing: 0,
     pitch: 0
   }
   ACTIVE_INITIAL_VIEW_STATE = {
     latitude: 48.0,
-    longitude: 7.5,
+    longitude: 17.5,
     zoom: 4.0, // Values from 0 to 15
     bearing: 0, // POV rotation. Positive -> turn CW
     pitch: 55 // Degrees angles from 0 to 60, with 0 = Zenith
   }
   public INITIAL_VIEW_STATE = this.HOME_INITIAL_VIEW_STATE;
-  private map: Mapboxgl.Map;
+  //private map: Mapboxgl.Map;
 
   private ICON_MAPPING = {
     home: 'assets/icons/home_black_48dp.svg',
@@ -135,13 +136,20 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   }
 
   windowResize() {
-    this.map.resize();
+    //this.map.resize();
   }
 
   getAllCentres(): any {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
-        this.data_source = res;
+        var resultForLocal = Object.values(res).filter((x) => x.local === true);
+        if (resultForLocal[0] == undefined) {
+          this.localId = -1;
+        } else {
+          this.localId = resultForLocal[0].id;
+        }
+        //this.data_source = res;
+        this.data_source = resultForLocal;
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
         this.remoteCentreList.sort(this.getSortOrder("id"));
         this.allCentreList = res;
@@ -169,11 +177,11 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   getActiveDataSource(): any {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
-        var result = Object.values(res).filter((x) => x.local === true);
-        if (result[0] == undefined) {
+        var resultForLocal = Object.values(res).filter((x) => x.local === true);
+        if (resultForLocal[0] == undefined) {
           this.localId = -1;
         } else {
-          this.localId = result[0].id;
+          this.localId = resultForLocal[0].id;
         }
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
         this.remoteCentreList.sort(this.getSortOrder("id"));
@@ -206,11 +214,11 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   getDHSConnected(): any {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
-        var result = Object.values(res).filter((x) => x.local === true);
-        if (result[0] == undefined) {
+        var resultForLocal = Object.values(res).filter((x) => x.local === true);
+        if (resultForLocal[0] == undefined) {
           this.localId = -1;
         } else {
-          this.localId = result[0].id;
+          this.localId = resultForLocal[0].id;
         }
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
         this.remoteCentreList.sort(this.getSortOrder("id"));
@@ -287,74 +295,93 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   /* Deck.gl with Mapbox interleaved */
   initDeck() {
     document.getElementById('map-content').innerHTML = "";
-    (Mapboxgl as any).accessToken = environment.mapboxKey;
-    this.map = new Mapboxgl.Map({
-      interactive: true,
-      container: 'map-content', // container ID
-      style: 'mapbox://styles/alia-space/ckv8beuxo066514s0n5zoe2xa',
-      center: [this.INITIAL_VIEW_STATE.longitude, this.INITIAL_VIEW_STATE.latitude],
-      zoom: this.INITIAL_VIEW_STATE.zoom,
-      minZoom: 2.5,
-      bearing: this.INITIAL_VIEW_STATE.bearing,
-      maxPitch: 55,
-      pitch: this.INITIAL_VIEW_STATE.pitch,
-      attributionControl: false,
-      antialias: true,
-      renderWorldCopies: false,
-      maxBounds: [[-180, -85], [180, 85]]
+
+    let lineCol = 60;
+    //const bounds = [[-180, -85], [180, 85]];
+    const bounds = [[-170, -80], [170, 80]];
+
+    function applyViewStateConstraints(viewState: any) {
+      return {
+        ...viewState,
+        longitude: Math.min(bounds[1][0], Math.max(bounds[0][0], viewState.longitude)),
+        latitude: Math.min(bounds[1][1], Math.max(bounds[0][1], viewState.latitude))
+      };
+    }
+
+    const geoJsonLayer = new GeoJsonLayer({
+      id: 'GeoJsonLayer',
+      data: '../assets/world-countries.geojson',
+      //data: '../assets/ne_110m_admin_0_countries.geojson',
+      //data: '../assets/ne_110m_land.geojson',
+      stroked: true,
+      filled: true,
+      pickable: true,
+      getFillColor: [0, 0, 0], 
+      getLineColor: [lineCol, lineCol, lineCol],
+      lineWidthUnits: 'pixels',
+      getLineWidth: 1
     });
 
-    const iconLayer = new MapboxLayer({
-      type: IconLayer,
+    const iconLayer = new IconLayer({
       id: 'icon-layer',
       data: this.allCentreList,
       pickable: true,
       billboard: true, // false = flat on terrain, true = vertical
-      getIcon: d => ({
+      getIcon: (d:any) => ({
         url: this.ICON_MAPPING[d.icon],
         width: 64,
         height: 64,
-        anchorY: 32,
+        anchorY: 64,
         mask: true
       }),
-      getPosition: d => [d.longitude, d.latitude],
+      parameters: {
+        depthTest: false
+      },
+      getPosition: (d:any) => [d.longitude, d.latitude, 0],
       getSize: AppConfig.settings.mapSettings.iconSize,
-      getColor: d => this.rgbConvertToArray(d.color)
+      getColor: (d:any) => this.rgbConvertToArray(d.color)
     });
 
-    const textLayer = new MapboxLayer({
-      type: TextLayer,
+    const textLayer = new TextLayer({
       id: 'text-layer',
       data: this.allCentreList,
       fontFamily: '"NotesESA-Reg", Arial, Helvetica, sans-serif',
       pickable: true,
-      getPosition: d => [d.longitude, d.latitude],
-      getText: d => d.name,
+      parameters: {
+        depthTest: false
+      },
+      getPosition: (d:any) => [d.longitude, d.latitude],
+      getText: (d:any) => d.name,
       getSize: AppConfig.settings.mapSettings.textSize,
       sizeUnits: 'pixels',
-      getPixelOffset: d => (d.textAnchor == 'end' ? [-20, 0] : [20, 0]),
+      getPixelOffset: (d:any) => (d.textAnchor == 'end' ? [-20, -6] : [20, -6]),
       getAngle: 0,
       getColor: [255, 255, 255],
-      getTextAnchor: d => d.textAnchor,
-      getAlignmentBaseline: 'center'
+      getTextAnchor: (d:any) => d.textAnchor,
+      getAlignmentBaseline: 'bottom'
     });
 
-    const arcLayer = new MapboxLayer({
-      type: ArcLayer,
+    const arcLayer = new ArcLayer({
       id: 'arcs-layer',
       data: this.data_source,
       getSourcePosition: [this.localCentre.longitude, this.localCentre.latitude],
-      getTargetPosition: d => [d.longitude, d.latitude],
+      getTargetPosition: (d:any) => [d.longitude, d.latitude],
       getSourceColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
       getTargetColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
       getWidth: 1
     });
 
-    const nav = new Mapboxgl.NavigationControl({
-      visualizePitch: true
+    const deckInstance = new Deck({
+      parent: <HTMLDivElement>document.getElementById('map-content'),
+      initialViewState: this.INITIAL_VIEW_STATE,
+      controller: true,
+      views: new MapView({repeat: false}),
+      //getTooltip: ({object}) => object && object.properties.name,
+      layers: [geoJsonLayer, iconLayer, textLayer, arcLayer],
+      onViewStateChange: ({viewState}) => applyViewStateConstraints(viewState)
     });
 
-    this.map.on('load', () => {
+    /* this.map.on('load', () => {
       if (this.map.getLayer('icon-layer')) this.map.removeLayer('icon-layer');
       if (this.map.getLayer('text-layer')) this.map.removeLayer('text-layer');
       if (this.map.getLayer('arcs-layer')) this.map.removeLayer('arcs-layer');
@@ -362,7 +389,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       this.map.addLayer(iconLayer);
       this.map.addLayer(textLayer);
       this.showArcs ? this.map.addLayer(arcLayer) : {};
-      /* uncomment to show nav controls */
+      /* uncomment to show nav controls 
       // this.map.addControl(nav, 'top-right');
 
       this.pageRefreshed = false;
@@ -373,7 +400,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
     this.map.on('resize', () => {
     });
-    
+     */
   }
 
   /* Function to convert [r, g, b] colors to html string: "#rrggbb" */
