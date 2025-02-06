@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
-import { Deck, MapViewState, PickingInfo, MapView } from '@deck.gl/core';
+import { Deck, MapViewState, PickingInfo, MapView, AccessorFunction, Position } from '@deck.gl/core';
 import { GeoJsonLayer, ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
 //import { MapboxLayer } from '@deck.gl/mapbox';
 import { environment } from 'src/environments/environment';
@@ -364,7 +364,7 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
     const arcLayer = new ArcLayer({
       id: 'arcs-layer',
       data: this.data_source,
-      getSourcePosition: [this.localCentre.longitude, this.localCentre.latitude],
+      getSourcePosition: (d:any) => [<any>this.localCentre.longitude, <any>this.localCentre.latitude],
       getTargetPosition: (d:any) => [d.longitude, d.latitude],
       getSourceColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
       getTargetColor: this.mapType == 'dhsConnected' ? this.rgbConvertToArray(this.localCentre.color) : d => this.rgbConvertToArray(d.color),
@@ -410,15 +410,15 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   }
 
   /* Function to convert #rrggbb colors to array: [r, g, b] */
-  rgbConvertToArray(col: string) {
+  rgbConvertToArray(col: string):[number, number, number] {
     if (col.length != 7) {
       return [100, 200, 250];
     }
     if (col.charAt(0) != '#') return [200, 0, 0];
-    var r = parseInt(col.substr(1, 2), 16);
-    var g = parseInt(col.substr(3, 2), 16);
-    var b = parseInt(col.substr(5, 2), 16);
-    let color = [r, g, b];
+    let r:number = parseInt(col.substr(1, 2), 16);
+    let g:number = parseInt(col.substr(3, 2), 16);
+    let b:number = parseInt(col.substr(5, 2), 16);
+    let color:[number, number, number] = [r, g, b];
     return color;
   }
 } 
