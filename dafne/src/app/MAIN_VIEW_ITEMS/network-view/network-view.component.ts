@@ -311,7 +311,8 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
     const geoJsonLayer = new GeoJsonLayer({
       id: 'GeoJsonLayer',
       data: '../assets/world-countries.geojson',
-
+      //data: '../assets/ne_110m_admin_0_countries.geojson',
+      //data: '../assets/ne_110m_land.geojson',
       stroked: true,
       filled: true,
       pickable: true,
