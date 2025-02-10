@@ -38,7 +38,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           
           this.authenticationService.logout().subscribe(
             data => {
-              console.log("Logout successful!");
+              //console.log("Logout successful!");
               this.authenticationService.isAuthenticated = false;
               this.authenticationService.currentUser = null;
               this.router.navigate(['/dafne-login']);

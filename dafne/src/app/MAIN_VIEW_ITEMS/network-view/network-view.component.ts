@@ -1,9 +1,6 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
-import { Deck, MapViewState, PickingInfo, MapView, AccessorFunction, Position } from '@deck.gl/core';
+import { Deck, MapView} from '@deck.gl/core';
 import { GeoJsonLayer, ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
-//import { MapboxLayer } from '@deck.gl/mapbox';
-import { environment } from 'src/environments/environment';
-//import * as Mapboxgl from 'mapbox-gl';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AppConfig } from '../../services/app.config';
 import { AuthenticationService } from '../../services/authentication.service';
@@ -73,7 +70,6 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
     pitch: 55 // Degrees angles from 0 to 60, with 0 = Zenith
   }
   public INITIAL_VIEW_STATE = this.HOME_INITIAL_VIEW_STATE;
-  //private map: Mapboxgl.Map;
 
   private ICON_MAPPING = {
     home: 'assets/icons/home_black_48dp.svg',
@@ -310,9 +306,9 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
     const geoJsonLayer = new GeoJsonLayer({
       id: 'GeoJsonLayer',
-      data: '../assets/world-countries.geojson',
-      //data: '../assets/ne_110m_admin_0_countries.geojson',
-      //data: '../assets/ne_110m_land.geojson',
+      data: '../assets/world-countries.geojson', // Highly detailed map
+      //data: '../assets/ne_110m_admin_0_countries.geojson', // Mediumly detailed map
+      //data: '../assets/ne_110m_land.geojson', // Lowly detailed map
       stroked: true,
       filled: true,
       pickable: true,
@@ -380,27 +376,6 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
       layers: [geoJsonLayer, iconLayer, textLayer, arcLayer],
       onViewStateChange: ({viewState}) => applyViewStateConstraints(viewState)
     });
-
-    /* this.map.on('load', () => {
-      if (this.map.getLayer('icon-layer')) this.map.removeLayer('icon-layer');
-      if (this.map.getLayer('text-layer')) this.map.removeLayer('text-layer');
-      if (this.map.getLayer('arcs-layer')) this.map.removeLayer('arcs-layer');
-
-      this.map.addLayer(iconLayer);
-      this.map.addLayer(textLayer);
-      this.showArcs ? this.map.addLayer(arcLayer) : {};
-      /* uncomment to show nav controls 
-      // this.map.addControl(nav, 'top-right');
-
-      this.pageRefreshed = false;
-      if (this.sub) {
-        this.sub.unsubscribe();
-      }
-    });
-
-    this.map.on('resize', () => {
-    });
-     */
   }
 
   /* Function to convert [r, g, b] colors to html string: "#rrggbb" */
