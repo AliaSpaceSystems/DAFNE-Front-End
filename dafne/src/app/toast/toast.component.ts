@@ -1,6 +1,6 @@
-import { Component, Injectable, OnInit, AfterViewInit } from '@angular/core';
+import { Component, Injectable, OnInit } from '@angular/core';
 
-//declare var $: any;
+declare var $: any;
 
 @Injectable({
     providedIn: 'root'
@@ -10,12 +10,11 @@ import { Component, Injectable, OnInit, AfterViewInit } from '@angular/core';
   templateUrl: './toast.component.html',
   styleUrls: ['./toast.component.scss']
 })
-export class ToastComponent implements OnInit, AfterViewInit {
+export class ToastComponent implements OnInit {
 
   public title: string;
   public message: string;
   public icon: string;
-  private toastEl: HTMLElement;
 
   constructor() {
     this.icon = 'assets/images/info.svg';
@@ -24,24 +23,17 @@ export class ToastComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.toastEl = document.querySelector('#portal-toast');
-    
-    /* this.toastEl.addEventListener('hidden.bs.toast', () => {
-      this.toastEl.style.pointerEvents = 'none';
-    }) */
-
-    // $('#portal-toast').on('hidden.bs.toast', function () {
-    //   this.toastEl.style.pointerEvents = 'none';
-    // })
-  }
-
-  ngAfterViewInit(): void {
     window.onclick = function (event: any) {
       if (!event.target.matches('.toast')) {
-        if(this.toastEl.style.display !== 'none')
-          this.toastEl.style.display = 'hide';
+        if($('#portal-toast').is(':visible'))
+            $('#portal-toast').toast('hide');
+
       }
     };
+
+    $('#portal-toast').on('hidden.bs.toast', function () {
+      $('#portal-toast').css('pointer-events','none');
+    })
   }
 
   showInfoToast(title: string, message: string) {
@@ -67,14 +59,11 @@ export class ToastComponent implements OnInit, AfterViewInit {
   showToast(title: string, message: string) {
     this.title = title;
     this.message = message;
-    //$('.toast-icon').attr('src',this.icon);
-    //$('.toast-title').html(this.title);
-    //$('.toast-body').html(this.message);
-    (<HTMLImageElement>this.toastEl.querySelector('.toast-icon')).src = this.icon;
-    (<HTMLElement>this.toastEl.querySelector('.toast-title')).innerHTML = this.title;
-    (<HTMLElement>this.toastEl.querySelector('.toast-body')).innerHTML = this.message;
-    this.toastEl.style.pointerEvents = 'all';
-    this.toastEl.style.display = 'show';
+    $('.toast-icon').attr('src',this.icon);
+    $('.toast-title').html(this.title);
+    $('.toast-body').html(this.message);
+    $('#portal-toast').css('pointer-events','all');
+    $('#portal-toast').toast('show');
   }
 
 }
