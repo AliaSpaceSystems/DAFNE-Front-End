@@ -24,16 +24,16 @@ export class HeaderComponent implements AfterViewInit {
   /* Hide menu if not authenticated */
   checkUserAuthenticated() {
     if (this.authenticationService.isAuthenticated) {      
-      //$(".dropdown-menu").css("visibility", "visible");
-      $(".dropdown-menu").css("display", "inline");
+      $(".dropdown-menu").css("visibility", "visible");
+      //$(".dropdown-menu").css("display", "inline");
     } else {
-      //$(".dropdown-menu").css("visibility", "hidden");
-      $(".dropdown-menu").css("display", "none");
+      $(".dropdown-menu").css("visibility", "hidden");
+      //$(".dropdown-menu").css("display", "none");
     }
   }
-  ddLinkClicked() {
-    $(".dropdown-menu").css("display", "none");
-  }
+  // ddLinkClicked() {
+  //   $(".dropdown-menu").css("display", "none");
+  // }
 
   navHome(event) {
     if (this.authenticationService.isAuthenticated) {

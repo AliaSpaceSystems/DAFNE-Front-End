@@ -306,9 +306,10 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
     const geoJsonLayer = new GeoJsonLayer({
       id: 'GeoJsonLayer',
-      data: '../assets/world-countries.geojson', // Highly detailed map
-      //data: '../assets/ne_110m_admin_0_countries.geojson', // Mediumly detailed map
-      //data: '../assets/ne_110m_land.geojson', // Lowly detailed map
+      //data: '../assets/world-maps/world-countries.geojson', // Highly detailed map
+      data: '../assets/world-maps/ne_50m_admin_0_countries.geojson', // Medium-high detailed map
+      //data: '../assets/world-maps/ne_110m_admin_0_countries.geojson', // Mediumly detailed map
+      //data: '../assets/world-maps/ne_110m_land.geojson', // Lowly detailed map
       stroked: true,
       filled: true,
       pickable: true,
