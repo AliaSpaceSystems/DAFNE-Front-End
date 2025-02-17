@@ -163,7 +163,7 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="input-group mb-1">
+                    <div class="input-group mb-1" *ngIf="showOauth2Fields">
                         <div class="mb-1">
                             <label for="edit_token_url" class="form-label">Service token URL</label>
                             <input type="text" class="form-control" id="edit_token_url" [(ngModel)]="service.token_url" name="edit_token_url">

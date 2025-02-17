@@ -248,7 +248,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
         username: (<HTMLInputElement>document.getElementById("add_service_username")).value,
         password: (<HTMLInputElement>document.getElementById('add_service_password')).value,
         service_url: (<HTMLInputElement>document.getElementById('add_service_url')).value,
-        token_url: (<HTMLInputElement>document.getElementById('add_token_url')).value,
+        token_url: ((<HTMLInputElement>document.getElementById('add_token_url')) ? (<HTMLInputElement>document.getElementById('add_token_url')).value : ""),
         service_type: tempServiceTypeId,
         centre: tempCentreId,
       };
@@ -298,6 +298,8 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     eyeEl.setAttribute('class', 'far fa-eye');
     eyeEl.style.setProperty('display', 'none');
 
+    this.checkOauth2Support(this.serviceTypesList.filter(st => st.service_type === this.service.service_type)[0].id);
+
     $("#editServiceModal").modal('toggle');
   }
 
@@ -339,7 +341,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
         body = {
           username: (<HTMLInputElement>document.getElementById("edit_service_username")).value,
           service_url: (<HTMLInputElement>document.getElementById('edit_service_url')).value,
-          token_url: (<HTMLInputElement>document.getElementById('edit_token_url')).value,
+          token_url: ((<HTMLInputElement>document.getElementById('edit_token_url')) ? (<HTMLInputElement>document.getElementById('edit_token_url')).value : ""),
           service_type: tempServiceTypeId,
           centre: tempCentreId,
         };       
@@ -348,7 +350,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
           username: (<HTMLInputElement>document.getElementById("edit_service_username")).value,
           password: (<HTMLInputElement>document.getElementById('edit_service_password')).value,
           service_url: (<HTMLInputElement>document.getElementById('edit_service_url')).value,
-          token_url: (<HTMLInputElement>document.getElementById('edit_token_url')).value,
+          token_url: ((<HTMLInputElement>document.getElementById('edit_token_url')) ? (<HTMLInputElement>document.getElementById('edit_token_url')).value : ""),
           service_type: tempServiceTypeId,
           centre: tempCentreId,
         };
@@ -400,6 +402,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     if (id) {
       console.log("Service Type ID: ", id);
       this.showOauth2Fields = this.serviceTypesList.filter((a: any) => a.id == id)[0].supports_oauth2;
+      console.log("Service OAuth2 support: ", this.showOauth2Fields);
     }
   }
 }
