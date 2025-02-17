@@ -1,4 +1,4 @@
-<div id="chart-title">Publication Latency</div>
+<div id="chart-title">Publication Timeliness</div>
 <div id="main-column-container">
     <!-- Filter header -->
     <div id="filters-form-container">
@@ -99,7 +99,7 @@
 
             <!-- Weekly and Daily Data -->
             <tr *ngIf="showDetailLatency == false">
-                <td style="color: #ffffff">Latency {{selectedFilterSyncLabel}}</td>
+                <td style="color: #ffffff">Timeliness {{selectedFilterSyncLabel}}</td>
                 <td *ngFor="let latency of requestedPublicationLatencyList">
                     <div *ngIf="latency.average_latency != null && latency.average_latency != -1" [ngStyle]="{'background-color': getLatencyHexColorFromSeconds(latency.average_latency)}"><span style="padding: 0 0.5rem; color: var(--main-bg-color)">{{millisToHHMMSS(latency.average_latency)}}</span></div>
                     <div *ngIf="latency.average_latency == null" style="color: var(--windows-title-color)">NaN</div>

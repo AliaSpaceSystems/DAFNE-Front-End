@@ -10,6 +10,7 @@
     background-color: var(--main-bg-color);
     color: var(--main-text-color);
     min-width: 980px;
+    position: relative;
 }
 
 /* Centres List */
