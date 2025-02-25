@@ -5,9 +5,10 @@
         <form id="filters-form">
             <div id="filters-form-row">
                 <!-- Use sync filter checkbox -->
-                <div class="use-filter-div">
+                <div class="use-filter-div disabled">
                     <label class="form-label" for="use-filter-checkbox">Use sync filter:</label>
-                    <input type="checkbox" class="form-control" id="use-filter-checkbox" (change)="onUseFilterCheckboxChange()" [checked]="false">
+                    <!-- <input type="checkbox" class="form-control" id="use-filter-checkbox" (change)="onUseFilterCheckboxChange()" [checked]="false"> -->
+                    <input type="checkbox" class="form-control" id="use-filter-checkbox" [checked]="false">
                 </div>
 
                 <!-- FALSE -->

@@ -264,11 +264,13 @@ export class ServiceAvailabilityComponent implements OnInit {
       this.authenticationService.getServiceAvailabilityWeekly(this.localCentre.id, body).subscribe(
         (res) => {
           if (res.centreId == this.localCentre.id) {
+            //console.log("getServiceAvailabilityWeekly - res: ", res);
             this.availabilityWeeksNumber = res.values.length;
-            this.weekdayShift = (tempStartDate.getDay() == 0 ? 6 : (tempStartDate.getDay() - 1));
-            this.weekdayStopShift = (tempStopDate.getDay() == 0 ? 0 : (7 - tempStopDate.getDay()));
+            this.weekdayShift = (tempStartDate.getDay() == 0 ? 6 : (tempStartDate.getDay() - 1)); // number of week starting days not counted
+            this.weekdayStopShift = (tempStopDate.getDay() == 0 ? 0 : (7 - tempStopDate.getDay())); // number of week ending days not counted.
+            //console.log("Requested this.weekdayShift: " + this.weekdayShift + " - this.weekdayStopShift: " + this.weekdayStopShift);
             this.requestedWeeksNumber = Math.ceil((((tempTimeDifference + (this.weekdayShift + this.weekdayStopShift) * this.millisPerDay ) / this.millisPerDay) + 1) / 7);
-
+            //console.log("Requested this.requestedWeeksNumber: " + this.requestedWeeksNumber);
             this.requestedStartMonth = tempStartDate.getMonth();
             this.requestedStopMonth = new Date(tempStopDate.valueOf() + this.weekdayStopShift * this.millisPerDay).getMonth();//tempStopDate.getMonth();
 
@@ -680,7 +682,15 @@ export class ServiceAvailabilityComponent implements OnInit {
             let tempText;
             let preText = "Week\n";
             let weekStartText = "from: " + this.requestedServiceAvailabilityList[i].date + "\nto: ";
+            if (this.requestedServiceAvailabilityList[i].date < this.startDate) {
+              preText = "Partial Week\n";
+              weekStartText = "from: " + this.startDate + "\nto: ";
+            }
             let weekEndText = this.getWeekEndDateText(this.requestedServiceAvailabilityList[i].date);
+            if (weekEndText > this.stopDate) {
+              preText = "Partial Week\n";
+              weekEndText = this.stopDate;
+            }
             tempText = preText + weekStartText + weekEndText;
             let tempRadium = (sectionXFilledDim - (2 * barGap) - dateFontSize);
             let angle = 0;

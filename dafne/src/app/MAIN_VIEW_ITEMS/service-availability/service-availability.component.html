@@ -73,7 +73,12 @@
             <thead *ngIf="isWeekly == true">
                 <th style="color: white">{{localCentre.name}}</th>
                 <ng-template ngFor let-availability [ngForOf]="requestedServiceAvailabilityList" let-i="index">
-                    <th style="padding: 0 0.5rem; white-space: pre;">Week <div>from: {{availability.date}} </div><div>to: {{getWeekEndDateText(availability.date)}}</div></th>
+                    <th style="padding: 0 0.5rem; white-space: pre;">
+                        <div *ngIf="availability.date < startDate || getWeekEndDateText(availability.date) > stopDate">Partial Week </div>
+                        <div *ngIf="availability.date >= startDate && getWeekEndDateText(availability.date) <= stopDate">Week </div> 
+                        <div>from: {{availability.date < startDate ? startDate : availability.date}} </div>
+                        <div>to: {{getWeekEndDateText(availability.date) > stopDate ? stopDate : getWeekEndDateText(availability.date)}}</div>
+                    </th>
                 </ng-template>
             </thead>
 

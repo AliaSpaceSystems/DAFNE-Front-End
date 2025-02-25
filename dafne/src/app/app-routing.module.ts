@@ -19,14 +19,16 @@ const routes: Routes = [
       /* Auxiliary routes */
       { path: 'network-component/:mapType', outlet: 'centralBodyRouter', component: NetworkViewComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always'},
       { path: 'completeness-component', outlet: 'centralBodyRouter', component: CompletenessComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always'},
-      { path: 'publication-latency-component', outlet: 'centralBodyRouter', component: PublicationLatencyComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always'},
+      //{ path: 'publication-latency-component', outlet: 'centralBodyRouter', component: PublicationLatencyComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always'},
+      { path: 'publication-latency-component', redirectTo: 'gui'},
       { path: 'service-availability', outlet: 'centralBodyRouter', component: ServiceAvailabilityComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always'},
       { path: '', outlet: 'centralBodyRouter', component: NetworkViewComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always'}
     ]
   },
   { path: 'edit-centres', component: EditCentresComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
   { path: 'edit-services', component: EditServicesComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
-  { path: 'edit-synchronizers', component: EditSyncComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
+  //{ path: 'edit-synchronizers', component: EditSyncComponent, canActivate: [AuthGuard], runGuardsAndResolvers: 'always' },
+  { path: 'edit-synchronizers', redirectTo: 'gui'},
   { path: '', redirectTo: 'gui', pathMatch: 'full'},
   { path: '**', redirectTo: 'gui'}
 ];

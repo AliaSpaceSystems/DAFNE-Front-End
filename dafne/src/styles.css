@@ -51,6 +51,12 @@ html, body {
 }
 
 
+/* Disabled class for DHS #9 */
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 @font-face {
     font-family: "NotesESA-Reg";
     src: local("NotesESA-Reg"), url(./assets/fonts/NotesESA/NotesEsaReg.otf) format("opentype");
