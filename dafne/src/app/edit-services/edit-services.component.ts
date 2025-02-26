@@ -12,6 +12,7 @@ const regexPatterns = {
   add_service_password: "^.{1,60}$",
   add_service_url: "^[^\ \,\;]{1,256}$",
   add_token_url: "^[^\ \,\;]{1,256}$",
+  add_client_id: "^[^\ \,\;]{1,256}$",
   add_service_type: "^.{1,60}$",
   add_centre: "^.{1,60}$",
 
@@ -19,6 +20,7 @@ const regexPatterns = {
   edit_service_password: "",
   edit_service_url: "^[^\ \,\;]{1,256}$",
   edit_token_url: "^[^\ \,\;]{1,256}$",
+  edit_client_id: "^[^\ \,\;]{1,256}$",
   edit_service_type: "^.{1,60}$",
   edit_centre: "^.{1,60}$"
 };
@@ -131,6 +133,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
   getServices():any {
     this.authenticationService.getAllServices().subscribe(
       (res: object) => {
+        //console.log("this.serviceList: ", res);
         this.serviceList = res;
         for (var i = 0; i < this.serviceList.length; i++) {
             this.getServiceType(i, this.serviceList[i].service_type);
@@ -153,7 +156,9 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     this.authenticationService.getAllCentres().subscribe(
       (res: object) => {
         this.centreList = res;
+        //console.log(this.centreList);
         for (var i = 0; i < this.serviceList.length; i++) {
+          //console.log("Checking for service centre: " + this.serviceList[i].centre);
           this.serviceList[i].centre = this.centreList.filter(a => a.id == this.serviceList[i].centre)[0].name;
         }
         this.pageRefreshed = false;
@@ -200,6 +205,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
       if ((<HTMLInputElement>input).id == "add_service_password") (<HTMLInputElement>input).value = this.service.password;
       if ((<HTMLInputElement>input).id == "add_service_url") (<HTMLInputElement>input).value = this.service.service_url;
       if ((<HTMLInputElement>input).id == "add_token_url") (<HTMLInputElement>input).value = this.service.token_url;
+      if ((<HTMLInputElement>input).id == "add_client_id") (<HTMLInputElement>input).value = this.service.client_id;
       if ((<HTMLInputElement>input).id == "add_centre") (<HTMLInputElement>input).value = this.service.centre;
     });
     var eyeEl = document.getElementById('toggleAddPassword');
@@ -249,6 +255,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
         password: (<HTMLInputElement>document.getElementById('add_service_password')).value,
         service_url: (<HTMLInputElement>document.getElementById('add_service_url')).value,
         token_url: ((<HTMLInputElement>document.getElementById('add_token_url')) ? (<HTMLInputElement>document.getElementById('add_token_url')).value : ""),
+        client_id: ((<HTMLInputElement>document.getElementById('add_client_id')) ? (<HTMLInputElement>document.getElementById('add_client_id')).value : ""),
         service_type: tempServiceTypeId,
         centre: tempCentreId,
       };
@@ -289,6 +296,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     this.service.password = '';
     this.service.service_url = this.serviceList.filter(a => a.id === id)[0].service_url;
     this.service.token_url = this.serviceList.filter(a => a.id === id)[0].token_url;
+    this.service.client_id = this.serviceList.filter(a => a.id === id)[0].client_id;
     this.service.service_type = this.serviceList.filter(a => a.id === id)[0].service_type;
     this.service.centre = this.serviceList.filter(a => a.id === id)[0].centre;
 
@@ -342,6 +350,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
           username: (<HTMLInputElement>document.getElementById("edit_service_username")).value,
           service_url: (<HTMLInputElement>document.getElementById('edit_service_url')).value,
           token_url: ((<HTMLInputElement>document.getElementById('edit_token_url')) ? (<HTMLInputElement>document.getElementById('edit_token_url')).value : ""),
+          client_id: ((<HTMLInputElement>document.getElementById('edit_client_id')) ? (<HTMLInputElement>document.getElementById('edit_client_id')).value : ""),
           service_type: tempServiceTypeId,
           centre: tempCentreId,
         };       
@@ -351,6 +360,7 @@ export class EditServicesComponent implements OnInit, OnDestroy {
           password: (<HTMLInputElement>document.getElementById('edit_service_password')).value,
           service_url: (<HTMLInputElement>document.getElementById('edit_service_url')).value,
           token_url: ((<HTMLInputElement>document.getElementById('edit_token_url')) ? (<HTMLInputElement>document.getElementById('edit_token_url')).value : ""),
+          client_id: ((<HTMLInputElement>document.getElementById('edit_client_id')) ? (<HTMLInputElement>document.getElementById('edit_client_id')).value : ""),
           service_type: tempServiceTypeId,
           centre: tempCentreId,
         };
@@ -400,9 +410,9 @@ export class EditServicesComponent implements OnInit, OnDestroy {
 
   checkOauth2Support(id: number) {
     if (id) {
-      console.log("Service Type ID: ", id);
+      //console.log("Service Type ID: ", id);
       this.showOauth2Fields = this.serviceTypesList.filter((a: any) => a.id == id)[0].supports_oauth2;
-      console.log("Service OAuth2 support: ", this.showOauth2Fields);
+      //console.log("Service OAuth2 support: ", this.showOauth2Fields);
     }
   }
 }

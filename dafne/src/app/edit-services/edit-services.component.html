@@ -11,6 +11,7 @@
                     <th>Username</th>
                     <th>Service URL</th>
                     <th>Service token URL</th>
+                    <th>Service client ID</th>
                     <th>Service type</th>
                     <th>Centre</th>
                     <th *ngIf="this.authenticationService.currentUser.isAdmin">Actions</th>
@@ -19,6 +20,7 @@
                     <td class="cell-username">{{service.username}}</td>
                     <td class="cell-service_url">{{service.service_url}}</td>
                     <td class="cell-token_url">{{service.token_url}}</td>
+                    <td class="cell-client_id">{{service.client_id}}</td>
                     <td class="cell-service_type">{{service.service_type}}</td>
                     <td class="cell-centre">{{service.centre}}</td>
                     <td *ngIf="this.authenticationService.currentUser.isAdmin" class="cell-actions">
@@ -95,6 +97,11 @@
                             <input type="text" class="form-control" id="add_token_url" [value]="service.token_url">
                             <small id="tokenUrlHelp" class="form-text">Length: 1 - 256 characters.<br>Invalid characters: , ; and SPACE</small>
                         </div>
+                        <div class="mb-1 ml-auto">
+                            <label for="add_client_id" class="form-label">Service clientId</label>
+                            <input type="text" class="form-control" id="add_client_id" [value]="service.client_id">
+                            <small id="clientIdHelp" class="form-text">Length: 1 - 256 characters.<br>Invalid characters: , ; and SPACE</small>
+                        </div>
                     </div>
                     <div class="row" >
                         <button type="button" class="btn btn-secondary ml-auto m-3" data-bs-dismiss="modal" aria-label="Close">Close</button>
@@ -168,6 +175,11 @@
                             <label for="edit_token_url" class="form-label">Service token URL</label>
                             <input type="text" class="form-control" id="edit_token_url" [(ngModel)]="service.token_url" name="edit_token_url">
                             <small id="tokenUrlHelp" class="form-text">Length: 1 - 256 characters.<br>Invalid characters: , ; and SPACE</small>
+                        </div>
+                        <div class="mb-1 ml-auto">
+                            <label for="edit_client_id" class="form-label">Service clientId</label>
+                            <input type="text" class="form-control" id="edit_client_id" [(ngModel)]="service.client_id" name="edit_client_id">
+                            <small id="clientIdHelp" class="form-text">Length: 1 - 256 characters.<br>Invalid characters: , ; and SPACE</small>
                         </div>
                     </div>
                     <div class="row" >

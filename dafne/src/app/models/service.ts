@@ -4,6 +4,7 @@ export class Service {
     password: string;
     service_url: string;
     token_url: string;
+    client_id: string;
     service_type: string;
     supports_oauth2: boolean;
     centre: string;

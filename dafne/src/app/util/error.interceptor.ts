@@ -30,11 +30,11 @@ export class ErrorInterceptor implements HttpInterceptor {
       catchError(err => {
         /* Spinner Service Off */
         this.spinner.setOff(now);
-        console.log('Error Interceptor: ', err);
+        //console.log('Error Interceptor: ', err);
 
         if (err.status === 401) {
           /* auto logout if 401 response returned from api */
-          console.log("Err Int - ERROR 401: Not Authorized");
+          //console.log("Err Int - ERROR 401: Not Authorized");
           
           this.authenticationService.logout().subscribe(
             data => {
