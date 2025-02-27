@@ -136,38 +136,40 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
   }
 
   getAllCentres(): any {
-    this.authenticationService.getAllCentres().subscribe(
-      (res: object) => {
-        var resultForLocal = Object.values(res).filter((x) => x.local === true);
-        if (resultForLocal[0] == undefined) {
-          this.localId = -1;
-        } else {
-          this.localId = resultForLocal[0].id;
-        }
-        //this.data_source = res;
-        this.data_source = resultForLocal;
-        this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
-        this.remoteCentreList.sort(this.getSortOrder("id"));
-        this.allCentreList = res;
-        this.allCentreList.sort(this.getSortOrder("id"));
-        this.checkLatLonPos(this.allCentreList);
+    if (this.authenticationService.isUserAuthenticated()) {
+      this.authenticationService.getAllCentres().subscribe(
+        (res: object) => {
+          var resultForLocal = Object.values(res).filter((x) => x.local === true);
+          if (resultForLocal[0] == undefined) {
+            this.localId = -1;
+          } else {
+            this.localId = resultForLocal[0].id;
+          }
+          //this.data_source = res;
+          this.data_source = resultForLocal;
+          this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
+          this.remoteCentreList.sort(this.getSortOrder("id"));
+          this.allCentreList = res;
+          this.allCentreList.sort(this.getSortOrder("id"));
+          this.checkLatLonPos(this.allCentreList);
 
-        if (Object.values(res).filter((x) => x.local === true)[0]) {
-          this.localCentre = Object.values(res).filter((x) => x.local === true)[0];
-          this.messageService.setLocalPresent(true);
-        } else {
-          this.messageService.setLocalPresent(false);
-          this.localCentre = {
-            id: -1,
-            name: '',
-            color: 'white',
-            latitude: '0.0',
-            longitude: '0.0'
-          };
+          if (Object.values(res).filter((x) => x.local === true)[0]) {
+            this.localCentre = Object.values(res).filter((x) => x.local === true)[0];
+            this.messageService.setLocalPresent(true);
+          } else {
+            this.messageService.setLocalPresent(false);
+            this.localCentre = {
+              id: -1,
+              name: '',
+              color: 'white',
+              latitude: '0.0',
+              longitude: '0.0'
+            };
+          }
+          this.initDeck();
         }
-        this.initDeck();
-      }
-    );
+      );
+    }
   }
 
   getActiveDataSource(): any {

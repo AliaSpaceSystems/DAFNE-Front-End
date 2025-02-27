@@ -61,6 +61,11 @@ export class AuthenticationService {
     }));
   }
 
+  isUserAuthenticated() {
+    // get all centres from the back-end
+    return this.isAuthenticated;
+  }
+
   getAllCentres() {
     // get all centres from the back-end
     return this.http.get<any>(AppConfig.settings.apiUrl + '/centres')
