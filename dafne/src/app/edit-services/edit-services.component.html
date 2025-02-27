@@ -19,8 +19,8 @@
                 <tr *ngFor="let service of serviceList">
                     <td class="cell-username">{{service.username}}</td>
                     <td class="cell-service_url">{{service.service_url}}</td>
-                    <td class="cell-token_url">{{service.token_url}}</td>
-                    <td class="cell-client_id">{{service.client_id}}</td>
+                    <td class="cell-token_url" [ngClass]="{'nd-cell': service.token_url == false}">{{service.token_url ? service.token_url : 'N/D'}}</td>
+                    <td class="cell-client_id" [ngClass]="{'nd-cell': service.client_id == false}">{{service.client_id ? service.client_id : 'N/D'}}</td>
                     <td class="cell-service_type">{{service.service_type}}</td>
                     <td class="cell-centre">{{service.centre}}</td>
                     <td *ngIf="this.authenticationService.currentUser.isAdmin" class="cell-actions">

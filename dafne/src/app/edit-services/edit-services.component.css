@@ -60,6 +60,9 @@ table, th, td {
     border: 1px solid var(--table-border-color);
     text-align: center;
 }
+.nd-cell {
+    color: var(--windows-title-color);
+}
 .action {
     padding: 0 0.75rem;
     opacity: 100%;
