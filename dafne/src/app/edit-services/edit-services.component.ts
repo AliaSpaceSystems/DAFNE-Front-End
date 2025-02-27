@@ -196,7 +196,8 @@ export class EditServicesComponent implements OnInit, OnDestroy {
     this.service.username = '';
     this.service.password = '';
     this.service.service_url = '';
-    this.service.token_url = '';    
+    this.service.token_url = '';
+    this.service.client_id = '';    
     this.service.centre = '';
     let inputs = document.querySelectorAll('#addServiceForm input.form-control');
     inputs.forEach((input) => {
