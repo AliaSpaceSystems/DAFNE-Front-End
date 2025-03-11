@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
 				data => {	
           this.toast.showSuccessToast('Login','Login successful with role: ' + this.authenticationService.currentUser.role);
           console.log("Login successful with role: " + this.authenticationService.currentUser.role);
-          this.router.navigate(['/dafne'], { skipLocationChange: false });
+          this.router.navigate(['/gui'], { skipLocationChange: false });
         },
 				error => {
 					console.log(error);

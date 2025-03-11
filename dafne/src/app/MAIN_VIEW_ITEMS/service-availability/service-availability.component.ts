@@ -680,15 +680,15 @@ export class ServiceAvailabilityComponent implements OnInit {
 
             /* Rotate Dates */
             let tempText;
-            let preText = "Week\n";
+            let preText = "Week ("+ this.getWeekNumber(this.requestedServiceAvailabilityList[i].date) +")\n";
             let weekStartText = "from: " + this.requestedServiceAvailabilityList[i].date + "\nto: ";
             if (this.requestedServiceAvailabilityList[i].date < this.startDate) {
-              preText = "Partial Week\n";
+              preText = "Partial Week ("+ this.getWeekNumber(this.requestedServiceAvailabilityList[i].date) +")\n";
               weekStartText = "from: " + this.startDate + "\nto: ";
             }
             let weekEndText = this.getWeekEndDateText(this.requestedServiceAvailabilityList[i].date);
             if (weekEndText > this.stopDate) {
-              preText = "Partial Week\n";
+              preText = "Partial Week ("+ this.getWeekNumber(this.requestedServiceAvailabilityList[i].date) +")\n";
               weekEndText = this.stopDate;
             }
             tempText = preText + weekStartText + weekEndText;
@@ -1089,5 +1089,21 @@ export class ServiceAvailabilityComponent implements OnInit {
 
   getWeekEndDateText(weekStartText) {
     return new Date(Date.parse(weekStartText) + (this.millisPerDay * 6)).toISOString().slice(0, 10)
+  }
+
+  getWeekNumber(date: string) {
+    // Copy date so don't modify original
+    let d: Date = new Date(date);
+    // Set to nearest Thursday: current date + 4 - current day number
+    // Make Sunday's day number 7
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    //console.log("Date: "+d);
+    // Get first day of year
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    // Calculate full weeks to nearest Thursday
+    var weekNo = Math.ceil(( ( (d.getTime() - yearStart.getTime()) / 86400000) + 1)/7);
+    // Return array of year and week number
+    //return [weekNo, d.getUTCFullYear()];
+    return weekNo;
   }
 }
