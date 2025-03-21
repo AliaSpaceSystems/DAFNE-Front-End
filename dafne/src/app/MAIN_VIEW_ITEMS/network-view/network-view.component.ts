@@ -2,9 +2,9 @@ import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Deck, MapView} from '@deck.gl/core';
 import { GeoJsonLayer, ArcLayer, TextLayer, IconLayer } from '@deck.gl/layers';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { AppConfig } from '../../services/app.config';
-import { AuthenticationService } from '../../services/authentication.service';
-import { MessageService } from '../../services/message.service';
+import { AppConfig } from 'src/app/services/app.config';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { MessageService } from 'src/app/services/message.service';
 
 @Component({
   selector: 'app-network-view',
@@ -308,10 +308,10 @@ export class NetworkViewComponent implements AfterViewInit, OnDestroy {
 
     const geoJsonLayer = new GeoJsonLayer({
       id: 'GeoJsonLayer',
-      //data: '../assets/world-maps/world-countries.geojson', // Highly detailed map
-      data: '../assets/world-maps/ne_50m_admin_0_countries.geojson', // Medium-high detailed map
-      //data: '../assets/world-maps/ne_110m_admin_0_countries.geojson', // Mediumly detailed map
-      //data: '../assets/world-maps/ne_110m_land.geojson', // Lowly detailed map
+      //data: 'assets/world-maps/world-countries.geojson', // Highly detailed map
+      data: 'assets/world-maps/ne_50m_admin_0_countries.geojson', // Medium-high detailed map
+      //data: 'assets/world-maps/ne_110m_admin_0_countries.geojson', // Mediumly detailed map
+      //data: 'assets/world-maps/ne_110m_land.geojson', // Lowly detailed map
       stroked: true,
       filled: true,
       pickable: true,

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { SpinnerComponent } from '../spinner/spinner.component';
+import { SpinnerComponent } from 'src/app/spinner/spinner.component';
 
 @Injectable()
 export class AppConfig {

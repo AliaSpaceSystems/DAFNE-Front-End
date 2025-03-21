@@ -1,12 +1,12 @@
 import { Component, OnInit, ElementRef, AfterViewInit, OnDestroy} from '@angular/core';
 import * as p5 from 'p5';
-import { AuthenticationService } from '../../services/authentication.service';
-import { AppConfig } from '../../services/app.config';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { AppConfig } from 'src/app/services/app.config';
 import { IDatePickerConfig } from 'ng2-date-picker';
-import { CsvDataService } from '../../services/csv-data.service';
-import { Centre } from '../../models/centre';
-import { AlertComponent } from '../../alert/alert.component';
-import { MessageService } from '../../services/message.service';
+import { CsvDataService } from 'src/app/services/csv-data.service';
+import { Centre } from 'src/app/models/centre';
+import { AlertComponent } from 'src/app/alert/alert.component';
+import { MessageService } from 'src/app/services/message.service';
 import { NavigationEnd, Router } from '@angular/router';
 
 declare var $: any;
@@ -202,10 +202,10 @@ export class CompletenessComponent implements OnInit, AfterViewInit, OnDestroy {
             tempServiceCentre.isCSC = true;
           }
 
-          /* Copy tempServiceCentre first into a complete list... */
+          /* Copy tempServiceCentre first into a complete list */
           this.serviceAllCentreList.push(tempServiceCentre);
     
-          /* ...and then separate the local into 'serviceLocalCentre' and the remotes into 'serviceRemoteCentreList' */
+          /* and then separate the local into 'serviceLocalCentre' and the remotes into 'serviceRemoteCentreList' */
           (tempServiceCentre.local) ? this.serviceLocalCentre = tempServiceCentre : this.serviceRemoteCentreList.push(tempServiceCentre);
         }
         /* Sort serviceAllCentreList by IDs and then set Local first */
@@ -221,7 +221,7 @@ export class CompletenessComponent implements OnInit, AfterViewInit, OnDestroy {
         /* Sort Remote Centres to put CSC at the end */
         this.serviceRemoteCentreList.sort(this.getSortOrder("isCSC"));
         
-        /* Get complete Centre List (also those without a service..) and copy into 'remoteCentreList[]' */
+        /* Get complete Centre List (also those without a service) and copy into 'remoteCentreList[]' */
         this.remoteCentreList = Object.values(res).filter((x) => x.local === null);
 
         /* Get the local Centre and copy into 'localCentre' */
@@ -342,7 +342,7 @@ export class CompletenessComponent implements OnInit, AfterViewInit, OnDestroy {
         this.tempFilter = "NaN"
         this.canSubmit = false
       }
-    } else if (serviceType.target.value == this.serviceTypeList[3].service_type) {  // All..
+    } else if (serviceType.target.value == this.serviceTypeList[3].service_type) {  // All
       this.serviceTypeChoosen = 4;
       if (this.siSynchronizers[0]) {
         this.choosenSync = this.siSynchronizers[0].Label

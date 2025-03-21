@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { Synchronizer } from '../models/synchronizer';
-import { AuthenticationService } from '../services/authentication.service';
-import { AlertComponent } from '../alert/alert.component';
-import { MessageService } from '../services/message.service';
+import { Synchronizer } from 'src/app/models/synchronizer';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { AlertComponent } from 'src/app/alert/alert.component';
+import { MessageService } from 'src/app/services/message.service';
 
 declare var $: any;
 
@@ -172,7 +172,7 @@ export class EditSyncComponent implements OnInit, OnDestroy {
         this.collectionsList = [[]];
         for (var i = 0; i < this.syncBackendLength; i++) {
           this.syncList[i] = res[i].synchronizers;
-          this.serviceUrlBackendList[i] = res[i].serviceUrl;  // Backend serviceUrl..
+          this.serviceUrlBackendList[i] = res[i].serviceUrl;  // Backend serviceUrl
           this.intelligentSyncSupported[i] = res[i].intelligentSyncSupported;
           for (var k = 0; k < this.syncList[i].length; k++) {
             this.syncList[i][k].ServiceUrlBackend = res[i].serviceUrl;
@@ -365,8 +365,8 @@ export class EditSyncComponent implements OnInit, OnDestroy {
     
     this.currentSync.id = tempSync.Id;
     this.currentSync.label = tempSync.Label;
-    this.currentSync.serviceUrlBackend = service_url_backend; // serviceUrlBackend..
-    this.currentSync.serviceUrl = tempSync.ServiceUrl; // serviceUrlSync..
+    this.currentSync.serviceUrlBackend = service_url_backend; // serviceUrlBackend
+    this.currentSync.serviceUrl = tempSync.ServiceUrl; // serviceUrlSync
     this.currentSync.serviceLogin = tempSync.ServiceLogin;
     this.currentSync.servicePassword = '';
     this.currentSync.copyProduct = tempSync.CopyProduct;

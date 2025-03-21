@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MessageService } from '../services/message.service';
+import { MessageService } from 'src/app/services/message.service';
 
 declare var $: any;
 

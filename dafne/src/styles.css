@@ -59,19 +59,19 @@ html, body {
 
 @font-face {
     font-family: "NotesESA-Reg";
-    src: local("NotesESA-Reg"), url(./assets/fonts/NotesESA/NotesEsaReg.otf) format("opentype");
+    src: local("NotesESA-Reg"), url(assets/fonts/NotesESA/NotesEsaReg.otf) format("opentype");
 }
 @font-face {
     font-family: "NotesESA-Bol";
-    src: local("NotesESA-Bol"), url(./assets/fonts/NotesESA/NotesEsaBol.otf) format("opentype");
+    src: local("NotesESA-Bol"), url(assets/fonts/NotesESA/NotesEsaBol.otf) format("opentype");
 }
 @font-face {
     font-family: 'Dafne Icon';
-    src: url('./assets/dafne-icon-font/fonts/Dafne-Icon.eot');
-    src: url('./assets/dafne-icon-font/fonts/Dafne-Icon.eot?#iefix') format('embedded-opentype'),
-         url('./assets/dafne-icon-font/fonts/Dafne-Icon.woff') format('woff'),
-         url('./assets/dafne-icon-font/fonts/Dafne-Icon.ttf') format('truetype'),
-         url('./assets/dafne-icon-font/fonts/Dafne-Icon.svg#Dafne-Icon') format('svg');
+    src: url('assets/dafne-icon-font/fonts/Dafne-Icon.eot');
+    src: url('assets/dafne-icon-font/fonts/Dafne-Icon.eot?#iefix') format('embedded-opentype'),
+         url('assets/dafne-icon-font/fonts/Dafne-Icon.woff') format('woff'),
+         url('assets/dafne-icon-font/fonts/Dafne-Icon.ttf') format('truetype'),
+         url('assets/dafne-icon-font/fonts/Dafne-Icon.svg#Dafne-Icon') format('svg');
     font-weight: normal;
     font-style: normal;
 }

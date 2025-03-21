@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Service } from '../models/service';
-import { AuthenticationService } from '../services/authentication.service';
+import { Service } from 'src/app/models/service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { AlertComponent } from '../alert/alert.component';
-import { MessageService } from '../services/message.service';
+import { AlertComponent } from 'src/app/alert/alert.component';
+import { MessageService } from 'src/app/services/message.service';
 
 declare var $: any;
 

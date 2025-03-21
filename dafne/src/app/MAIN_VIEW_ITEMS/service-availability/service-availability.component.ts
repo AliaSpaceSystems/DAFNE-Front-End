@@ -1,10 +1,10 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
-import { AuthenticationService } from '../../services/authentication.service';
-import { AlertComponent } from '../../alert/alert.component';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { AlertComponent } from 'src/app/alert/alert.component';
 import { IDatePickerConfig } from 'ng2-date-picker';
-import { Availability } from '../../models/availability';
-import { AppConfig } from '../../services/app.config';
-import { CsvDataService } from '../../services/csv-data.service';
+import { Availability } from 'src/app/models/availability';
+import { AppConfig } from 'src/app/services/app.config';
+import { CsvDataService } from 'src/app/services/csv-data.service';
 import * as p5 from 'p5';
 
 @Component({

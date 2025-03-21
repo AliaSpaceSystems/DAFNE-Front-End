@@ -3,10 +3,10 @@ import { HttpRequest, HttpResponse, HttpHandler, HttpEvent, HttpInterceptor } fr
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { AuthenticationService } from '../services/authentication.service';
-import { SpinnerComponent } from '../spinner/spinner.component';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { SpinnerComponent } from 'src/app/spinner/spinner.component';
 import * as moment from 'moment';
-import { AlertComponent } from '../alert/alert.component';
+import { AlertComponent } from 'src/app/alert/alert.component';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {

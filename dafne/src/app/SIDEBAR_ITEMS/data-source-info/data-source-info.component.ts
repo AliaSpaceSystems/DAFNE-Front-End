@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthenticationService } from '../../services/authentication.service';
-import { MessageService } from '../../services/message.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { MessageService } from 'src/app/services/message.service';
 
 declare var $: any;
 

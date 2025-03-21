@@ -3,8 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import jwt_decode from 'jwt-decode';
-import { User } from '../models/user';
-import { AppConfig } from '../services/app.config';
+import { User } from 'src/app/models/user';
+import { AppConfig } from 'src/app/services/app.config';
 
 
 

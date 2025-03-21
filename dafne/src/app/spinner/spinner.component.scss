@@ -30,7 +30,7 @@
 
 /* :not(:required) hides these rules from IE9 and below */
 .loading:not(:required) {
-  /* hide "loading..." text */
+  /* hide "loading" text */
   font: 0/0 a;
   color: transparent;
   text-shadow: none;
