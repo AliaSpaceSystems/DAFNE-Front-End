@@ -1,79 +1,68 @@
-import { Injectable } from '@angular/core';
-import { HttpRequest, HttpResponse, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { HttpHandlerFn, HttpInterceptorFn, HttpRequest, HttpEvent, HttpEventType } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { SpinnerComponent } from 'src/app/spinner/spinner.component';
-import * as moment from 'moment';
+import { Router } from '@angular/router';
 import { AlertComponent } from 'src/app/alert/alert.component';
+import { SpinnerComponent } from '../spinner/spinner.component';
+import * as moment from 'moment';
 
-@Injectable()
-export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private authenticationService: AuthenticationService,
-              private router: Router,
-              private spinner: SpinnerComponent,
-              private alert: AlertComponent
-  ) { }
+export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    /* Spinner Service On */
-    const now = moment.now().toLocaleString();
-    this.spinner.setOn(now);
-    return next.handle(request).pipe(
-      tap(evt => {
-        if (evt instanceof HttpResponse) {
-          /* Spinner Service Off */
-          this.spinner.setOff(now);
-        }
-      }),
-      catchError(err => {
+  const authenticationService = inject(AuthenticationService);
+  const alert = inject(AlertComponent);
+  const router = inject(Router);
+  const spinner = inject(SpinnerComponent);
+
+  /* Spinner Service On */
+  const now = moment.now().toLocaleString();
+  spinner.setOn(now);
+
+  return next(req).pipe(
+    tap((event: any) => {
+      if (event.type === HttpEventType.Response) {
         /* Spinner Service Off */
-        this.spinner.setOff(now);
-        //console.log('Error Interceptor: ', err);
+        spinner.setOff(now);
+      }
+      
+    }),
+    catchError((error: any) => {
+      /* Spinner Service Off */
+      spinner.setOff(now);
 
-        if (err.status === 401) {
-          /* auto logout if 401 response returned from api */
-          //console.log("Err Int - ERROR 401: Not Authorized");
-          
-          this.authenticationService.logout().subscribe(
-            data => {
-              //console.log("Logout successful!");
-              this.authenticationService.isAuthenticated = false;
-              this.authenticationService.currentUser = null;
-              this.router.navigate(['/dafne-login']);
-            },
-            error => {
-              console.log(error);
-              console.log(error.status);
-            });
-        } else if (err.status === 403) {
-          /* Cannot login if 403 response returned from api */          
-          console.log("ERROR 403: Invalid role.");
-          this.alert.showErrorAlert("ERROR " + err.status + ": " + err.statusText + " - Invalid role.", err.message);
-          this.reloadCurrentRoute();
-        } else if (err.status === 404) {
-          /* show alert with message if error is 404: Not found */
-          console.log("ERROR 404: Not Found.");
-          this.alert.showErrorAlert("ERROR " + err.status + ": " + err.statusText, err.message);
-          this.reloadCurrentRoute();
+      if (error.status === 401) {
+        authenticationService.logout();
+      } else if (error.status === 403) {
+        /* Cannot login if 403 response returned from api */          
+        console.log("ERROR 403: Invalid role.");
+        alert.showErrorAlert("ERROR " + error.status + ": " + error.statusText + " - Invalid role.", error.message);
+        reloadCurrentRoute();
+      } else if (error.status === 404) {
+        /* show alert with message if error is 404: Not found */
+        console.log("ERROR 404: Not Found.");
+        alert.showErrorAlert("ERROR " + error.status + ": " + error.statusText, error.message);
+        reloadCurrentRoute();
+      } else if (error.status === 400) {
+        /* Don't show alert if error is 400: Token not valid */
+        console.log("ERROR 400: Token not valid.");
+        alert.showErrorAlert("ERROR " + error.status + ": " + error.statusText, error.message);
+        reloadCurrentRoute();
+      } else {
+        /* Show alert on any other error */
+        if (error.error.hasOwnProperty('errors')) {
+          alert.showErrorAlert("ERROR " + error.status + ": " + error.statusText, error.error.errors[0].message);
         } else {
-          /* Show alert on any other error */
-          if (err.error.hasOwnProperty('errors')) {
-            this.alert.showErrorAlert("ERROR " + err.status + ": " + err.statusText, err.error.errors[0].message);
-          } else {
-            this.alert.showErrorAlert("ERROR " + err.status + ": " + err.statusText, err.message);
-          }
+          alert.showErrorAlert("ERROR " + error.status + ": " + error.statusText, error.message);
         }
+      }
+      return throwError(() => error);
+    })
+  );
 
-        return throwError(err);
-      }));
-  }
-
-  reloadCurrentRoute() {
-    const currentUrl = this.router.url;
-    this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
-        this.router.navigate([currentUrl]);
+  function reloadCurrentRoute() {
+    const currentUrl = router.url;
+    router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+        router.navigate([currentUrl]);
     });
   }
-}
+};
